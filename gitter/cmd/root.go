@@ -15,6 +15,7 @@ var rootCmd = &cobra.Command{
 	Short: "Git repository management",
 	Long:  `Manage multiple git branches`,
 	Run: func(cmd *cobra.Command, args []string) {
+		listCmd.Run(cmd, args)
 	},
 }
 
