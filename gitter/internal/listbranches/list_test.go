@@ -16,7 +16,7 @@ func Test_sortBranches(t *testing.T) {
 	rand.Seed(1674844778090707000)
 	rand.Shuffle(len(refs), func(i, j int) { refs[i], refs[j] = refs[j], refs[i] })
 
-	sortBranches(refs)
+	sortBranches("master", refs)
 
 	for idx, b := range refs {
 		fmt.Println(idx, "==>", b.IsHead, " / ", b.Project, " / ", b.Branch)
@@ -38,6 +38,7 @@ func clone() []*GitBranchMetadata {
 	}
 
 	return []*GitBranchMetadata{
+		newRef("master", "master", false),
 		newRef("bear", "bear", false),
 		newRef("bear", "brown", false),
 		newRef("bear", "polar", false),
@@ -45,7 +46,7 @@ func clone() []*GitBranchMetadata {
 		newRef("foo", "branch2", false),
 		newRef("foo", "branch3", false),
 		newRef("foo", "branch4", false),
-		newRef("foo", "branch5", false),
+		newRef("foo", "branch5", true),
 		newRef("foo", "branch6", false),
 		newRef("foo", "branch7", false),
 	}

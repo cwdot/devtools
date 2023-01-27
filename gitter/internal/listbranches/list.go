@@ -67,12 +67,12 @@ func SortBranches(layout *config.Layout, g *git.Repository, allBranches bool) ([
 		log.Panic(err)
 	}
 
-	sortBranches(refs)
+	sortBranches(layout.Repo.RootBranch, refs)
 
 	return refs, nil
 }
 
-func sortBranches(refs []*GitBranchMetadata) {
+func sortBranches(rootBranchName string, refs []*GitBranchMetadata) {
 	sort.Slice(refs, func(i, j int) bool {
 		// handle missing parts
 		if refs[i].Branch == nil && refs[j].Branch == nil {
@@ -85,6 +85,10 @@ func sortBranches(refs []*GitBranchMetadata) {
 
 		// we have all parts; compare in proper sequence
 		switch {
+		case refs[i].Project == rootBranchName:
+			return true
+		case refs[j].Project == rootBranchName:
+			return false
 		case refs[i].Project != refs[j].Project:
 			return refs[i].Project < refs[j].Project
 		case refs[i].Branch.Name != refs[j].Branch.Name:
@@ -104,6 +108,7 @@ func GenerateLinks(base config.BaseLinks, links config.Links) string {
 	}
 	return ""
 }
+
 func createCsvLinks(base string, csvLinks string) string {
 	newLinks := make([]string, 0, 5)
 	items := strings.Split(csvLinks, ",")
