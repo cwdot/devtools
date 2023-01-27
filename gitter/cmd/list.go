@@ -17,10 +17,9 @@ import (
 )
 
 var (
-	names  = []string{"*", "HASH", "PROJECT", "NAME", "DESCRIPTION", "LAST COMMITTED", "COMMITTED DATE", "REL DATE", "TRACKING", "LINKS"}
+	names  = []string{"*", "PROJECT", "NAME", "DESCRIPTION", "LAST COMMITTED", "COMMITTED DATE", "REL DATE", "TRACKING", "LINKS"}
 	widths = []int{
 		1,  // active
-		7,  // hash
 		20, // project
 		30, // name
 		30, // description
@@ -93,11 +92,10 @@ var listCmd = &cobra.Command{
 			}
 
 			output := []string{
-				active,        // active
-				row.Hash[0:7], // hash
-				row.Project,   // project
-				name,          // name
-				description,   // description
+				active,      // active
+				row.Project, // project
+				name,        // name
+				description, // description
 				strings.TrimSpace(row.LastCommit.Message), // description
 				commitDateS,        // commit date
 				relDateS,           // rel date
@@ -143,7 +141,6 @@ func headerColors() []tw.Colors {
 		{tw.Bold, tw.FgHiBlueColor},
 		{tw.Bold, tw.FgHiBlueColor},
 		{tw.Bold, tw.FgHiBlueColor},
-		{tw.Bold, tw.FgHiBlueColor},
 	}
 }
 
@@ -151,7 +148,6 @@ func colorDataRow(project string) []tw.Colors {
 	projectColor := colorStringByHash(project)
 	return []tw.Colors{
 		{tw.Bold, tw.FgHiGreenColor},
-		{tw.Normal, tw.FgHiCyanColor},
 		{tw.Normal, projectColor},
 		{tw.Normal, tw.Normal},
 		{tw.Normal, tw.Normal},
