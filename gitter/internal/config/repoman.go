@@ -8,36 +8,44 @@ import (
 	"github.com/pkg/errors"
 )
 
-func OpenDefault() (*Layout, *git.Repository, error) {
+func OpenDefault(showArchived bool) (*Layout, *git.Repository, error) {
 	path, err := os.Getwd()
 	if err != nil {
 		return nil, nil, nil
 	}
-	return OpenCustom(path)
+	return OpenCustom(path, showArchived)
 }
 
-func OpenCustom(path string) (*Layout, *git.Repository, error) {
+func OpenCustom(path string, showArchived bool) (*Layout, *git.Repository, error) {
 	conf, err := DefaultConfigFile()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	repo := getRepo(conf, path)
-
-	cork, err := git.PlainOpen(path)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to open git repo")
-	}
-
 	branches := make(map[string]*branchPair)
 
-	sets := []BranchSet{repo.Active, repo.Archived}
-	for _, set := range sets {
+	repo := getRepo(conf, path)
+	sets := []BranchSet{repo.Active}
+	if showArchived {
+		sets = append(sets, repo.Archived)
+	}
+
+	for idx, set := range sets {
 		for project, rBranches := range set {
 			for _, rBranch := range rBranches {
+				if _, ok := branches[rBranch.Name]; ok {
+					panic("Branches with the same name: " + rBranch.Name)
+				}
+
+				archived := false
+				if idx == 1 {
+					archived = true
+				}
+
 				branches[rBranch.Name] = &branchPair{
-					Project: project,
-					Branch:  rBranch,
+					Project:  project,
+					Branch:   rBranch,
+					Archived: archived,
 				}
 			}
 		}
@@ -47,6 +55,12 @@ func OpenCustom(path string) (*Layout, *git.Repository, error) {
 		Repo:     repo,
 		branches: branches,
 	}
+
+	cork, err := git.PlainOpen(path)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to open git repo")
+	}
+
 	return &gr, cork, nil
 }
 
@@ -71,17 +85,18 @@ func processHome(value string) string {
 }
 
 type branchPair struct {
-	Project string
-	Branch  Branch
+	Project  string
+	Branch   Branch
+	Archived bool
 }
 type Layout struct {
 	Repo     *Repo
 	branches map[string]*branchPair
 }
 
-func (r *Layout) FindBranch(shortName string) (*Branch, string, bool) {
+func (r *Layout) FindBranch(shortName string) (*Branch, string, bool, bool) {
 	if val, ok := r.branches[shortName]; ok {
-		return &val.Branch, val.Project, ok
+		return &val.Branch, val.Project, val.Archived, ok
 	}
-	return nil, "", false
+	return nil, "", false, false
 }

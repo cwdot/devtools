@@ -15,6 +15,7 @@ import (
 type GitBranchMetadata struct {
 	Branch         *config.Branch
 	Project        string
+	Archived       bool
 	IsHead         bool
 	Hash           string
 	LastCommit     *object.Commit
@@ -35,7 +36,7 @@ func SortBranches(layout *config.Layout, g *git.Repository, allBranches bool) ([
 	refs := make([]*GitBranchMetadata, 0, 20)
 
 	err = iter.ForEach(func(r *plumbing.Reference) error {
-		branch, project, ok := layout.FindBranch(r.Name().Short())
+		branch, project, archived, ok := layout.FindBranch(r.Name().Short())
 		if !allBranches && !ok {
 			return nil
 		}
@@ -56,6 +57,7 @@ func SortBranches(layout *config.Layout, g *git.Repository, allBranches bool) ([
 		refs = append(refs, &GitBranchMetadata{
 			Branch:         branch,
 			Project:        project,
+			Archived:       archived,
 			LastCommit:     lastCommit,
 			TrackingBranch: tracking,
 			Hash:           r.Hash().String(),

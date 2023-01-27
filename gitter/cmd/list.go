@@ -32,10 +32,12 @@ var (
 )
 
 var allBranches bool
+var showArchived bool
 
 func init() {
 	rootCmd.AddCommand(listCmd)
-	listCmd.Flags().BoolVarP(&allBranches, "all", "a", false, "Show all branches")
+	listCmd.Flags().BoolVarP(&allBranches, "all", "a", false, "Show all git branches; default branches defined in config")
+	listCmd.Flags().BoolVarP(&showArchived, "archived", "", false, "Show archived branches")
 }
 
 func open() (*config.Layout, *git.Repository, error) {
@@ -45,9 +47,9 @@ func open() (*config.Layout, *git.Repository, error) {
 			return nil, nil, err
 		}
 		env := filepath.Join(home, ".env")
-		return config.OpenCustom(env)
+		return config.OpenCustom(env, showArchived)
 	}
-	return config.OpenDefault()
+	return config.OpenDefault(showArchived)
 }
 
 var listCmd = &cobra.Command{
@@ -71,6 +73,8 @@ var listCmd = &cobra.Command{
 			var active string
 			if row.IsHead {
 				active = "*"
+			} else if row.Archived {
+				active = "A"
 			} else {
 				active = " "
 			}
