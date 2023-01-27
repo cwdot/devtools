@@ -20,5 +20,5 @@ func TimeDiff(a time.Time, b time.Time) string {
 	ms, sf := math.Modf(ms)
 	ss := sf * 60
 
-	return fmt.Sprintf("%fh %fm %fs", hs, ms, ss)
+	return fmt.Sprintf("%.0fh %.0fm %.0fs", hs, ms, ss)
 }
