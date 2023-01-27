@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/pkg/errors"
 )
 
@@ -80,8 +79,8 @@ type Layout struct {
 	branches map[string]*branchPair
 }
 
-func (r *Layout) FindBranch(refName plumbing.ReferenceName) (*Branch, string, bool) {
-	if val, ok := r.branches[refName.Short()]; ok {
+func (r *Layout) FindBranch(shortName string) (*Branch, string, bool) {
+	if val, ok := r.branches[shortName]; ok {
 		return &val.Branch, val.Project, ok
 	}
 	return nil, "", false

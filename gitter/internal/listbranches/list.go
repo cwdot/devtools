@@ -21,7 +21,7 @@ type GitBranchMetadata struct {
 	TrackingBranch string
 }
 
-func SortBranches(layout *config.Layout, g *git.Repository) ([]*GitBranchMetadata, error) {
+func SortBranches(layout *config.Layout, g *git.Repository, allBranches bool) ([]*GitBranchMetadata, error) {
 	iter, err := g.Branches()
 	if err != nil {
 		log.Panic(err)
@@ -35,7 +35,10 @@ func SortBranches(layout *config.Layout, g *git.Repository) ([]*GitBranchMetadat
 	refs := make([]*GitBranchMetadata, 0, 20)
 
 	err = iter.ForEach(func(r *plumbing.Reference) error {
-		branch, project, _ := layout.FindBranch(r.Name())
+		branch, project, ok := layout.FindBranch(r.Name().Short())
+		if !allBranches && !ok {
+			return nil
+		}
 
 		var tracking string
 		revision := r.Name()

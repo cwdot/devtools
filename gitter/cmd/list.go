@@ -32,9 +32,11 @@ var (
 	}
 )
 
+var allBranches bool
+
 func init() {
 	rootCmd.AddCommand(listCmd)
-	configCmd.AddCommand(configPrintCmd)
+	listCmd.Flags().BoolVarP(&allBranches, "all", "a", false, "Show all branches")
 }
 
 func open() (*config.Layout, *git.Repository, error) {
@@ -59,7 +61,7 @@ var listCmd = &cobra.Command{
 			log.Panic(err)
 		}
 
-		rows, err := listbranches.SortBranches(layout, g)
+		rows, err := listbranches.SortBranches(layout, g, allBranches)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -119,10 +121,6 @@ var listCmd = &cobra.Command{
 		table.SetBorder(false)
 
 		for _, row := range data {
-			//if row. {
-			//	table.Rich(colorData1, []tablewriter.Colors{tablewriter.Colors{}, tablewriter.Colors{tablewriter.Normal, tablewriter.FgCyanColor}, tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor}, tablewriter.Colors{}})
-			//	table.Rich(colorData2, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgMagentaColor}, tablewriter.Colors{}, tablewriter.Colors{tablewriter.Bold, tablewriter.BgRedColor}, tablewriter.Colors{tablewriter.FgHiGreenColor, tablewriter.Italic, tablewriter.BgHiCyanColor}})
-			//}
 			if row.Colors == nil {
 				table.Append(row.Data)
 			} else {
