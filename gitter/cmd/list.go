@@ -13,7 +13,8 @@ import (
 	"github.com/spf13/cobra"
 	"gitter/internal/config"
 	"gitter/internal/listbranches"
-	"gitter/util"
+
+	"github.com/cwdot/go-stdlib/extratime"
 )
 
 var (
@@ -90,9 +91,9 @@ var listCmd = &cobra.Command{
 			var commitDateS, relDateS string
 			commitDate := row.LastCommit.Committer.When
 			if !commitDate.IsZero() {
-				commitDateS = commitDate.Format(util.TimeLayout)
+				commitDateS = commitDate.Format(extratime.TimeLayout)
 				now := time.Now()
-				relDateS = util.TimeDiff(now, commitDate)
+				relDateS = extratime.TimeDiff(commitDate, now, false)
 			}
 
 			output := []string{
