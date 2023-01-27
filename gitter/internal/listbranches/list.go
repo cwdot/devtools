@@ -64,7 +64,14 @@ func SortBranches(layout *config.Layout, g *git.Repository) ([]*GitBranchMetadat
 		log.Panic(err)
 	}
 
+	sortBranches(refs)
+
+	return refs, nil
+}
+
+func sortBranches(refs []*GitBranchMetadata) {
 	sort.Slice(refs, func(i, j int) bool {
+		// handle missing parts
 		if refs[i].Branch == nil && refs[j].Branch == nil {
 			return refs[i].Hash < refs[j].Hash
 		} else if refs[i].Branch != nil && refs[j].Branch == nil {
@@ -73,16 +80,16 @@ func SortBranches(layout *config.Layout, g *git.Repository) ([]*GitBranchMetadat
 			return false
 		}
 
-		if refs[i].Project < refs[j].Project {
-			return true
+		// we have all parts; compare in proper sequence
+		switch {
+		case refs[i].Project != refs[j].Project:
+			return refs[i].Project < refs[j].Project
+		case refs[i].Branch.Name != refs[j].Branch.Name:
+			return refs[i].Branch.Name < refs[j].Branch.Name
+		default:
+			return false
 		}
-		if refs[i].Branch.Name < refs[j].Branch.Name {
-			return true
-		}
-		return false
 	})
-
-	return refs, nil
 }
 
 func GenerateLinks(base config.BaseLinks, links config.Links) string {
