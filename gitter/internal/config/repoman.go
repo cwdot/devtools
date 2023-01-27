@@ -8,21 +8,30 @@ import (
 	"github.com/pkg/errors"
 )
 
-func OpenDefault(showArchived bool) (*Layout, *git.Repository, error) {
+func OpenDefault(layoutName string, showArchived bool) (*ActiveRepo, *git.Repository, []Column, error) {
 	path, err := os.Getwd()
 	if err != nil {
-		return nil, nil, nil
+		return nil, nil, nil, nil
 	}
-	return OpenCustom(path, showArchived)
+	return OpenCustom(path, layoutName, showArchived)
 }
 
-func OpenCustom(path string, showArchived bool) (*Layout, *git.Repository, error) {
+func OpenCustom(path string, layoutName string, showArchived bool) (*ActiveRepo, *git.Repository, []Column, error) {
 	conf, err := DefaultConfigFile()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	branches := make(map[string]*branchPair)
+	var layout []Column
+	if layoutName == "default" {
+		layout = DefaultLayout()
+	} else {
+		var ok bool
+		layout, ok = conf.Layouts[layoutName]
+		if !ok {
+			return nil, nil, nil, errors.Errorf("Cannot find layout in config: %s", layoutName)
+		}
+	}
 
 	repo := getRepo(conf, path)
 	sets := []BranchSet{repo.Active}
@@ -30,6 +39,7 @@ func OpenCustom(path string, showArchived bool) (*Layout, *git.Repository, error
 		sets = append(sets, repo.Archived)
 	}
 
+	branches := make(map[string]*branchPair)
 	for idx, set := range sets {
 		for project, rBranches := range set {
 			for _, rBranch := range rBranches {
@@ -51,17 +61,17 @@ func OpenCustom(path string, showArchived bool) (*Layout, *git.Repository, error
 		}
 	}
 
-	gr := Layout{
+	gr := ActiveRepo{
 		Repo:     repo,
 		branches: branches,
 	}
 
 	cork, err := git.PlainOpen(path)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to open git repo")
+		return nil, nil, nil, errors.Wrap(err, "failed to open git repo")
 	}
 
-	return &gr, cork, nil
+	return &gr, cork, layout, nil
 }
 
 func getRepo(conf *Config, path string) *Repo {
@@ -89,12 +99,12 @@ type branchPair struct {
 	Branch   Branch
 	Archived bool
 }
-type Layout struct {
+type ActiveRepo struct {
 	Repo     *Repo
 	branches map[string]*branchPair
 }
 
-func (r *Layout) FindBranch(shortName string) (*Branch, string, bool, bool) {
+func (r *ActiveRepo) FindBranch(shortName string) (*Branch, string, bool, bool) {
 	if val, ok := r.branches[shortName]; ok {
 		return &val.Branch, val.Project, val.Archived, ok
 	}

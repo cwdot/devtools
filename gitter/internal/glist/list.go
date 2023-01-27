@@ -1,4 +1,4 @@
-package listbranches
+package glist
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ type GitBranchMetadata struct {
 	TrackingBranch string
 }
 
-func SortBranches(layout *config.Layout, g *git.Repository, allBranches bool) ([]*GitBranchMetadata, error) {
+func SortBranches(layout *config.ActiveRepo, g *git.Repository, allBranches bool) ([]*GitBranchMetadata, error) {
 	iter, err := g.Branches()
 	if err != nil {
 		log.Panic(err)
@@ -87,9 +87,9 @@ func sortBranches(rootBranchName string, refs []*GitBranchMetadata) {
 
 		// we have all parts; compare in proper sequence
 		switch {
-		case refs[i].Project == rootBranchName:
+		case refs[i].Branch.Name == rootBranchName:
 			return true
-		case refs[j].Project == rootBranchName:
+		case refs[j].Branch.Name == rootBranchName:
 			return false
 		case refs[i].Project != refs[j].Project:
 			return refs[i].Project < refs[j].Project
@@ -101,7 +101,7 @@ func sortBranches(rootBranchName string, refs []*GitBranchMetadata) {
 	})
 }
 
-func GenerateLinks(base config.BaseLinks, links config.Links) string {
+func GenerateLinks(base config.BaseLinks, links config.BranchLinks) string {
 	if links.Pr != "" {
 		return createCsvLinks(base.PrBase, links.Pr)
 	}

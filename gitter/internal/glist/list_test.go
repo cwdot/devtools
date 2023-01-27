@@ -1,4 +1,4 @@
-package listbranches
+package glist
 
 import (
 	"fmt"
@@ -30,6 +30,7 @@ func clone() []*GitBranchMetadata {
 		return &GitBranchMetadata{
 			&config.Branch{Name: name},
 			project,
+			false,
 			head,
 			"",
 			nil,
