@@ -1,6 +1,7 @@
 package config
 
 type BranchSet map[string][]Branch
+type TreeSet map[string][]TreeBranch
 
 type Repo struct {
 	Name       string    `yaml:"name"`
@@ -9,6 +10,7 @@ type Repo struct {
 	BaseLinks  BaseLinks `yaml:"base_links"`
 	Active     BranchSet `yaml:"active"`
 	Archived   BranchSet `yaml:"archived"`
+	Trees      TreeSet   `yaml:"trees"`
 }
 
 type BaseLinks struct {
@@ -27,4 +29,8 @@ type Branch struct {
 	RemoteBranch string      `yaml:"remote"`
 	Description  string      `yaml:"description"`
 	Links        BranchLinks `yaml:"links"`
+}
+
+type TreeBranch struct {
+	Name string `yaml:"name"`
 }

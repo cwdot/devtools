@@ -44,8 +44,10 @@ func OpenCustom(path string, layoutName string, showArchived bool) (*ActiveRepo,
 	}
 
 	branches := make(map[string]*branchPair)
+	projects := make(map[string][]Branch)
 	for idx, set := range sets {
 		for project, rBranches := range set {
+			projects[project] = rBranches
 			for _, rBranch := range rBranches {
 				if _, ok := branches[rBranch.Name]; ok {
 					panic("Branches with the same name: " + rBranch.Name)
@@ -68,6 +70,8 @@ func OpenCustom(path string, layoutName string, showArchived bool) (*ActiveRepo,
 	gr := ActiveRepo{
 		Repo:     repo,
 		branches: branches,
+		projects: projects,
+		trees:    repo.Trees,
 	}
 
 	cork, err := git.PlainOpen(path)
@@ -106,6 +110,8 @@ type branchPair struct {
 type ActiveRepo struct {
 	Repo     *Repo
 	branches map[string]*branchPair
+	projects BranchSet
+	trees    TreeSet
 }
 
 func (r *ActiveRepo) FindBranch(shortName string) (*Branch, string, bool, bool) {
@@ -113,4 +119,18 @@ func (r *ActiveRepo) FindBranch(shortName string) (*Branch, string, bool, bool) 
 		return &val.Branch, val.Project, val.Archived, ok
 	}
 	return nil, "", false, false
+}
+
+func (r *ActiveRepo) FindByProject(projectName string) ([]Branch, bool) {
+	if val, ok := r.projects[projectName]; ok {
+		return val, ok
+	}
+	return nil, false
+}
+
+func (r *ActiveRepo) FindTree(projectName string) ([]TreeBranch, bool) {
+	if val, ok := r.trees[projectName]; ok {
+		return val, ok
+	}
+	return nil, false
 }
