@@ -23,7 +23,8 @@ type BranchLinks struct {
 }
 
 type Branch struct {
-	Name        string      `yaml:"name"`
-	Description string      `yaml:"description"`
-	Links       BranchLinks `yaml:"links"`
+	Name         string      `yaml:"name"`
+	RemoteBranch string      `yaml:"remote"`
+	Description  string      `yaml:"description"`
+	Links        BranchLinks `yaml:"links"`
 }

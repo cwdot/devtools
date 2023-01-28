@@ -33,7 +33,11 @@ func OpenCustom(path string, layoutName string, showArchived bool) (*ActiveRepo,
 		}
 	}
 
-	repo := getRepo(conf, path)
+	repo, err := getRepo(conf, path)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
 	sets := []BranchSet{repo.Active}
 	if showArchived {
 		sets = append(sets, repo.Archived)
@@ -74,16 +78,16 @@ func OpenCustom(path string, layoutName string, showArchived bool) (*ActiveRepo,
 	return &gr, cork, layout, nil
 }
 
-func getRepo(conf *Config, path string) *Repo {
+func getRepo(conf *Config, path string) (*Repo, error) {
 	repos := make(map[string]*Repo)
 	for _, repo := range conf.Repos {
 		home := processHome(repo.Home)
 		repos[home] = &repo
 		if home == path {
-			return &repo
+			return &repo, nil
 		}
 	}
-	return nil
+	return nil, errors.Errorf("failed to find repo: %s", path)
 }
 
 func processHome(value string) string {

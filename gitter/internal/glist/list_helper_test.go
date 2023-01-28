@@ -35,6 +35,9 @@ func clone() []*GitBranchMetadata {
 			"",
 			nil,
 			"",
+			"",
+			"",
+			"",
 		}
 	}
 

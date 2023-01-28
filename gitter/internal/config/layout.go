@@ -16,17 +16,22 @@ type ColumnKind string
 type WrapStyle string
 
 const (
-	Active        ColumnKind = "active"
-	LastHash      ColumnKind = "hash"
-	LastHashShort ColumnKind = "hash-short"
-	Project       ColumnKind = "project"
-	Name          ColumnKind = "name"
-	Description   ColumnKind = "description"
-	LastCommitted ColumnKind = "last-committed"
-	CommittedDate ColumnKind = "committed-date"
-	RelDate       ColumnKind = "rel-date"
-	Tracking      ColumnKind = "tracking"
-	Links         ColumnKind = "links"
+	Active          ColumnKind = "active"
+	LastHash        ColumnKind = "hash"
+	LastHashShort   ColumnKind = "hash-short"
+	Project         ColumnKind = "project"
+	Name            ColumnKind = "name"
+	Description     ColumnKind = "description"
+	LastCommitted   ColumnKind = "last-committed"
+	CommittedDate   ColumnKind = "committed-date"
+	RelDate         ColumnKind = "rel-date"
+	RootDrift       ColumnKind = "root-drift"
+	RootDriftDesc   ColumnKind = "root-drift-desc"
+	RootTracking    ColumnKind = "root-tracking"
+	RemoteDrift     ColumnKind = "remote-drift"
+	RemoteDriftDesc ColumnKind = "remote-drift-desc"
+	RemoteTracking  ColumnKind = "remote-tracking"
+	Links           ColumnKind = "links"
 
 	Nothing  WrapStyle = ""
 	Truncate WrapStyle = "truncate"
@@ -41,7 +46,10 @@ func DefaultLayout() []Column {
 		{30, LastCommitted, "LAST COMMITTED", "truncate", tw.Normal, tw.Normal},
 		{20, CommittedDate, "COMMITTED DATE", "", tw.Normal, tw.Normal},
 		{8, RelDate, "REL DATE", "", tw.Normal, tw.Normal},
-		{14, Tracking, "TRACKING", "truncate", tw.Normal, tw.Normal},
+		{12, RootDriftDesc, "R DRIFT", "", tw.Normal, tw.Normal},
+		{14, RootTracking, "R TRACKING", "truncate", tw.Normal, tw.Normal},
+		{12, RemoteDriftDesc, "REM DRIFT", "", tw.Normal, tw.Normal},
+		{14, RemoteTracking, "REM TRACKING", "truncate", tw.Normal, tw.Normal},
 		{30, Links, "LINKS", "", tw.Normal, tw.Normal},
 	}
 }

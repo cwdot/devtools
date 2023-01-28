@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -97,10 +98,15 @@ var listCmd = &cobra.Command{
 			output[config.LastCommitted] = strings.TrimSpace(row.LastCommit.Message)
 			output[config.CommittedDate] = commitDateS
 			output[config.RelDate] = relDateS
-			output[config.Tracking] = row.TrackingBranch
+			output[config.RootDrift] = strconv.Itoa(row.RootDrift)
+			output[config.RootDriftDesc] = row.RootDriftDesc
+			output[config.RootTracking] = row.RootTracking
+			output[config.RemoteDrift] = strconv.Itoa(row.RemoteDrift)
+			output[config.RemoteDriftDesc] = row.RemoteDriftDesc
+			output[config.RemoteTracking] = row.RemoteTracking
 			output[config.Links] = links
 
-			colors := colorDataRow(row.Project, rootRow, commitDate)
+			colors := colorDataRow(row.Project, rootRow, commitDate, row.RootDrift, row.RemoteDrift)
 			bench.Append(output, colors)
 		}
 
@@ -108,8 +114,7 @@ var listCmd = &cobra.Command{
 	},
 }
 
-// TODO: not aware of different layouts
-func colorDataRow(project string, isRoot bool, date time.Time) *glist.RowColor {
+func colorDataRow(project string, isRoot bool, date time.Time, rootDrift int, remoteDrift int) *glist.RowColor {
 	rc := glist.NewRowColor()
 	rc.Colors[config.Project] = colorStringByHash(project)
 	if isRoot {
@@ -118,6 +123,20 @@ func colorDataRow(project string, isRoot bool, date time.Time) *glist.RowColor {
 	if date.Before(time.Now().Add(time.Hour * 24 * -30)) {
 		rc.Colors[config.CommittedDate] = tw.FgHiRedColor
 		rc.Colors[config.RelDate] = tw.FgHiRedColor
+	}
+	if rootDrift > 5 {
+		rc.Colors[config.RootDrift] = tw.FgHiYellowColor
+		rc.Colors[config.RootDriftDesc] = tw.FgHiYellowColor
+	} else if rootDrift < 5 {
+		rc.Colors[config.RootDrift] = tw.FgHiRedColor
+		rc.Colors[config.RootDriftDesc] = tw.FgHiRedColor
+	}
+	if remoteDrift > 5 {
+		rc.Colors[config.RemoteDrift] = tw.FgHiYellowColor
+		rc.Colors[config.RemoteDriftDesc] = tw.FgHiYellowColor
+	} else if remoteDrift < 5 {
+		rc.Colors[config.RemoteDrift] = tw.FgHiRedColor
+		rc.Colors[config.RemoteDriftDesc] = tw.FgHiRedColor
 	}
 	return rc
 }

@@ -9,17 +9,23 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/pkg/errors"
 	"gitter/internal/config"
 )
 
 type GitBranchMetadata struct {
-	Branch         *config.Branch
-	Project        string
-	Archived       bool
-	IsHead         bool
-	Hash           string
-	LastCommit     *object.Commit
-	TrackingBranch string
+	Branch          *config.Branch
+	Project         string
+	Archived        bool
+	IsHead          bool
+	Hash            string
+	LastCommit      *object.Commit
+	RootTracking    string
+	RootDrift       int
+	RootDriftDesc   string
+	RemoteTracking  string
+	RemoteDrift     int
+	RemoteDriftDesc string
 }
 
 func SortBranches(layout *config.ActiveRepo, g *git.Repository, allBranches bool) ([]*GitBranchMetadata, error) {
@@ -35,33 +41,53 @@ func SortBranches(layout *config.ActiveRepo, g *git.Repository, allBranches bool
 
 	refs := make([]*GitBranchMetadata, 0, 20)
 
+	// child is main branch we're on
+	// parent/root is usually master
+	// remote is usually child's remote branch
 	err = iter.ForEach(func(r *plumbing.Reference) error {
-		branch, project, archived, ok := layout.FindBranch(r.Name().Short())
+		shortName := r.Name().Short()
+		branch, project, archived, ok := layout.FindBranch(shortName)
 		if !allBranches && !ok {
 			return nil
 		}
 
-		var tracking string
-		revision := r.Name()
-
-		lastCommit, err := g.CommitObject(r.Hash())
+		lastChildCommit, err := g.CommitObject(r.Hash())
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed to find commit object for last commit: %s", shortName)
 		}
 
-		gBranch, err := g.Branch(revision.Short())
-		if err == nil {
-			tracking = fmt.Sprintf("%s/%s", gBranch.Remote, gBranch.Name)
+		var rootTracking, rootDriftDesc, remoteTracking, remoteDriftDesc string
+		var rootDrift, remoteDrift int
+
+		if layout.Repo.RootBranch != "" && layout.Repo.RootBranch != shortName {
+			rootTracking = layout.Repo.RootBranch
+			rootDrift, rootDriftDesc, err = computeDrift(g, layout.Repo.RootBranch, lastChildCommit)
+			if err != nil {
+				return errors.Wrapf(err, "failed to find drift for root: %s", shortName)
+			}
+		}
+
+		if branch.RemoteBranch != "" {
+			remoteTracking = branch.RemoteBranch
+			remoteDrift, remoteDriftDesc, err = computeDrift(g, branch.RemoteBranch, lastChildCommit)
+			if err != nil {
+				return errors.Wrapf(err, "failed to find drift for remote: %s", shortName)
+			}
 		}
 
 		refs = append(refs, &GitBranchMetadata{
-			Branch:         branch,
-			Project:        project,
-			Archived:       archived,
-			LastCommit:     lastCommit,
-			TrackingBranch: tracking,
-			Hash:           r.Hash().String(),
-			IsHead:         r.Hash() == head.Hash(),
+			Branch:          branch,
+			Project:         project,
+			Archived:        archived,
+			LastCommit:      lastChildCommit,
+			RootTracking:    rootTracking,
+			RootDrift:       rootDrift,
+			RootDriftDesc:   rootDriftDesc,
+			RemoteTracking:  remoteTracking,
+			RemoteDrift:     remoteDrift,
+			RemoteDriftDesc: remoteDriftDesc,
+			Hash:            r.Hash().String(),
+			IsHead:          r.Hash() == head.Hash(),
 		})
 		return nil
 	})
