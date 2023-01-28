@@ -25,9 +25,9 @@ func Test_sortBranches(t *testing.T) {
 	require.Equal(t, original, refs)
 }
 
-func clone() []*GitBranchMetadata {
-	newRef := func(project string, name string, head bool) *GitBranchMetadata {
-		return &GitBranchMetadata{
+func clone() []*gitBranchMetadata {
+	newRef := func(project string, name string, head bool) *gitBranchMetadata {
+		return &gitBranchMetadata{
 			&config.Branch{Name: name},
 			project,
 			false,
@@ -41,7 +41,7 @@ func clone() []*GitBranchMetadata {
 		}
 	}
 
-	return []*GitBranchMetadata{
+	return []*gitBranchMetadata{
 		newRef("master", "master", false),
 		newRef("bear", "bear", false),
 		newRef("bear", "brown", false),

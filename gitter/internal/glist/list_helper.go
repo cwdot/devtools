@@ -13,7 +13,7 @@ import (
 	"gitter/internal/config"
 )
 
-type GitBranchMetadata struct {
+type gitBranchMetadata struct {
 	Branch          *config.Branch
 	Project         string
 	Archived        bool
@@ -28,7 +28,7 @@ type GitBranchMetadata struct {
 	RemoteDriftDesc string
 }
 
-func SortBranches(layout *config.ActiveRepo, g *git.Repository, allBranches bool) ([]*GitBranchMetadata, error) {
+func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, allBranches bool) ([]*gitBranchMetadata, error) {
 	iter, err := g.Branches()
 	if err != nil {
 		log.Panic(err)
@@ -39,7 +39,7 @@ func SortBranches(layout *config.ActiveRepo, g *git.Repository, allBranches bool
 		log.Panic(err)
 	}
 
-	refs := make([]*GitBranchMetadata, 0, 20)
+	refs := make([]*gitBranchMetadata, 0, 20)
 
 	// child is main branch we're on
 	// parent/root is usually master
@@ -75,7 +75,7 @@ func SortBranches(layout *config.ActiveRepo, g *git.Repository, allBranches bool
 			}
 		}
 
-		refs = append(refs, &GitBranchMetadata{
+		refs = append(refs, &gitBranchMetadata{
 			Branch:          branch,
 			Project:         project,
 			Archived:        archived,
@@ -100,7 +100,7 @@ func SortBranches(layout *config.ActiveRepo, g *git.Repository, allBranches bool
 	return refs, nil
 }
 
-func sortBranches(rootBranchName string, refs []*GitBranchMetadata) {
+func sortBranches(rootBranchName string, refs []*gitBranchMetadata) {
 	sort.Slice(refs, func(i, j int) bool {
 		// handle missing parts
 		if refs[i].Branch == nil && refs[j].Branch == nil {

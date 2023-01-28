@@ -7,7 +7,7 @@ import (
 	"gitter/internal/config"
 )
 
-func CreateTable(layout []config.Column) *Bench {
+func createTable(layout []config.Column) *Bench {
 	names, widths, colors := computeTableParts(layout)
 	table := tw.NewWriter(os.Stdout)
 	table.SetHeader(names)
