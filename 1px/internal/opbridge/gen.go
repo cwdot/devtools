@@ -38,7 +38,7 @@ func List(tag string) ([]OpEntry, error) {
 	}
 
 	wood.Debugf("Invoked op item list: %s", outs.String())
-	wood.Infof("Found %d credentials matching criteria")
+	wood.Infof("Found %d credentials matching criteria", len(entries))
 	return entries, nil
 }
 
