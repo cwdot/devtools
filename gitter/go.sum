@@ -16,8 +16,8 @@ github.com/cloudflare/circl v1.3.1 h1:4OVCZRL62ijwEwxnF6I7hLwxvIYi3VaZt8Tflkqtrt
 github.com/cloudflare/circl v1.3.1/go.mod h1:+CauBF6R70Jqcyl8N2hC8pAXYbWkGIezuSbuGLtRhnw=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
-github.com/cwdot/go-stdlib v0.0.0-20230128025123-b2dd6f6598fb h1:oZdrcBRnE89Lr3kk0ssn5KTIpQOt3BjwBBdicZDnRJQ=
-github.com/cwdot/go-stdlib v0.0.0-20230128025123-b2dd6f6598fb/go.mod h1:hwFnPfGVkNGiPECGdDu/ymnfegSt5ARjOq+KFD7e5kU=
+github.com/cwdot/go-stdlib v0.0.1 h1:Gk3M4yIh4sfkEeCuYYYJirLm91dF4EyPxP5eD+HNbr4=
+github.com/cwdot/go-stdlib v0.0.1/go.mod h1:hwFnPfGVkNGiPECGdDu/ymnfegSt5ARjOq+KFD7e5kU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

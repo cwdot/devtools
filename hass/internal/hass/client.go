@@ -60,7 +60,7 @@ func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
 		arguments[k] = v
 
 		// Need to make a call to set the commit the option
-		wood.Infof("Switch options: %s", entityId)
+		wood.Debugf("Switch options: %s", entityId)
 		err := c.Service("light", "turn_on", arguments)
 		if err != nil {
 			return errors.Wrapf(err, "failed to turn on light: %v", entityId)

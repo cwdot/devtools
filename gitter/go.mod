@@ -3,7 +3,7 @@ module gitter
 go 1.19
 
 require (
-	github.com/cwdot/go-stdlib v0.0.0-20230128025123-b2dd6f6598fb
+	github.com/cwdot/go-stdlib v0.0.1
 	github.com/go-git/go-git/v5 v5.5.2
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pkg/errors v0.9.1

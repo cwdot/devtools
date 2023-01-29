@@ -7,6 +7,8 @@ import (
 
 	"1px/internal/opbridge"
 	"github.com/pkg/errors"
+
+	"github.com/cwdot/go-stdlib/wood"
 )
 
 func Write(entries []Entry, output string) error {
@@ -42,6 +44,8 @@ func Write(entries []Entry, output string) error {
 	if err := f.Close(); err != nil {
 		return errors.Wrap(err, "failed to close file")
 	}
+
+	wood.Infof("Exported %d credentials to %s", len(entries), output)
 
 	return nil
 }

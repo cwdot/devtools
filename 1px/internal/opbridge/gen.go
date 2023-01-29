@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"os/exec"
 	"time"
+
+	"github.com/cwdot/go-stdlib/wood"
 )
 
 func List(tag string) ([]OpEntry, error) {
 	//op item list --tags "1px/mac4" --format json
 	cmd := exec.Command("op", "item", "list", "--tags", fmt.Sprintf(`"%s"`, tag), "--format", "json")
 
+	wood.Debugf("Invoked op item list: %s", cmd.String())
 	var out bytes.Buffer
 	cmd.Stdout = &out
 
@@ -26,6 +29,7 @@ func List(tag string) ([]OpEntry, error) {
 		return nil, err
 	}
 
+	wood.Debugf("Invoked op item list: %s", out.String())
 	return entries, nil
 }
 
@@ -41,7 +45,7 @@ func Inject(template string, output string) error {
 		return err
 	}
 
-	fmt.Println(out.String())
+	wood.Debugf("Invoked op inject: %s", out.String())
 	return nil
 }
 

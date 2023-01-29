@@ -2,12 +2,16 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"1px/internal/config"
 	"1px/internal/generator"
 	"1px/internal/opbridge"
 	"github.com/spf13/cobra"
+
+	"github.com/cwdot/go-stdlib/wood"
 )
 
 var machine string
@@ -16,9 +20,17 @@ var output string
 
 func init() {
 	rootCmd.AddCommand(generateCmd)
-	generateCmd.Flags().StringVarP(&machine, "machine", "", "", "")
-	generateCmd.Flags().StringVarP(&conf, "config", "", "", "")
-	generateCmd.Flags().StringVarP(&output, "output", "", "", "")
+	generateCmd.Flags().StringVarP(&machine, "machine", "", "", "env machine")
+	generateCmd.Flags().StringVarP(&conf, "config", "", "", "Config listing requested credentials")
+	generateCmd.Flags().StringVarP(&output, "output", "", defaultCreds(), "Path to new credentials.env file")
+}
+
+func defaultCreds() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		wood.Fatalf("error finding home dir: %s", err)
+	}
+	return filepath.Join(home, ".credentials.env")
 }
 
 var generateCmd = &cobra.Command{
@@ -26,6 +38,17 @@ var generateCmd = &cobra.Command{
 	Short: "Generate credentials.env file",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
+		if machine == "" {
+			cmd.Help()
+			fmt.Println()
+			wood.Fatal("Missing --machine argument")
+		}
+		if conf == "" {
+			cmd.Help()
+			fmt.Println()
+			wood.Fatal("Missing --conf argument")
+		}
+
 		// read config.yaml
 		config, err := config.ReadConfigFile(conf)
 		if err != nil {
@@ -56,9 +79,9 @@ var generateCmd = &cobra.Command{
 		}
 
 		if len(pairs) == 0 {
-			panic("Found zero credentials to export")
+			wood.Panicf("Found zero credentials to export")
 		}
-		fmt.Printf("Found %d credentials to export\n", len(pairs))
+		wood.Infof("Found %d credentials to export", len(pairs))
 
 		// write to credentials file
 		err = generator.Write(pairs, output)

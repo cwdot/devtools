@@ -16,6 +16,7 @@ var rootCmd = &cobra.Command{
 	Short: "Hass",
 	Long:  `Home assistant tool`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Help()
 	},
 }
 
