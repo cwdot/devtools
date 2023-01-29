@@ -10,7 +10,6 @@ import (
 )
 
 var verbose bool
-var underTest bool
 
 var rootCmd = &cobra.Command{
 	Use:   "hass",
@@ -24,7 +23,6 @@ var client *hass.Client
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose logging")
-	rootCmd.PersistentFlags().BoolVarP(&underTest, "test", "t", false, "Test with env repo")
 }
 
 func Execute() {

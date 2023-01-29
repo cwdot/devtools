@@ -6,4 +6,6 @@ const (
 	desklight = "light.lightstrip"
 
 	canvas = "light.canvas_6acd"
+
+	elgato = "light.elgato_dw52j1a00646"
 )

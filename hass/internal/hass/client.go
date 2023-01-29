@@ -76,7 +76,8 @@ func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
 		arguments["flash"] = opt.Flash
 	}
 
-	wood.Infof("Turning on light: %s == %v", entityId, arguments)
+	payload, _ := json.Marshal(arguments)
+	wood.Infof("Turning on light: %s == %v", entityId, string(payload))
 
 	err := c.Service("light", "turn_on", arguments)
 	if err != nil {
@@ -84,11 +85,7 @@ func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
 	}
 
 	if opt.TurnOff != 0 {
-		time.Sleep(opt.TurnOff)
-		err = c.LightOff(entityId)
-		if err != nil {
-			return errors.Wrapf(err, "failed to turn off light for pseudo-transition: %v", entityId)
-		}
+		return c.Deactivate(entityId, opt.TurnOff)
 	}
 
 	return nil
@@ -98,6 +95,15 @@ func (c *Client) LightOff(entityId string) error {
 	err := c.ServiceSimple("light", "turn_off", entityId)
 	if err != nil {
 		return errors.Wrapf(err, "failed to turn off light: %v", entityId)
+	}
+	return nil
+}
+
+func (c *Client) Deactivate(entityId string, duration time.Duration) error {
+	time.Sleep(duration)
+	err := c.LightOff(entityId)
+	if err != nil {
+		return errors.Wrapf(err, "failed to turn off light for pseudo-transition: %v", entityId)
 	}
 	return nil
 }
@@ -122,7 +128,8 @@ func (c *Client) post(endpoint string, arguments map[string]any) error {
 	postBody, _ := json.Marshal(arguments)
 	requestBody := bytes.NewBuffer(postBody)
 
-	wood.Debugf("Invoked %s with: %s", endpoint, string(postBody))
+	payload, _ := json.Marshal(arguments)
+	wood.Debugf("Invoked %s with: %s", endpoint, string(payload))
 
 	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", domain, endpoint), requestBody)
 	if err != nil {

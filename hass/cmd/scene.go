@@ -7,21 +7,26 @@ import (
 	"hass/internal/hass"
 )
 
+var lightBrightness int
+
 func init() {
 	rootCmd.AddCommand(sceneCmd)
 	sceneCmd.AddCommand(sceneSuccessCmd)
 	sceneCmd.AddCommand(sceneFailureCmd)
-	sceneCmd.AddCommand(sceneAlertCmd)
+	sceneCmd.AddCommand(sceneDangerCmd)
 	sceneCmd.AddCommand(sceneExerciseCmd)
 	sceneCmd.AddCommand(sceneResetCmd)
+	sceneCmd.AddCommand(sceneRingCmd)
+
+	rootCmd.PersistentFlags().IntVarP(&lightBrightness, "brightness", "b", 20, "Light brightness")
 }
 
 var sceneSuccessCmd = &cobra.Command{
 	Use:   "success",
 	Short: "Build success",
-	Long:  "",
+	Long:  "Activate bloom light with green",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := client.LightOn(bloom, hass.Green(), hass.LongFlash())
+		err := client.LightOn(bloom, hass.Green(), hass.LongFlash(), hass.Brightness(lightBrightness))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -31,26 +36,38 @@ var sceneSuccessCmd = &cobra.Command{
 var sceneFailureCmd = &cobra.Command{
 	Use:   "failure",
 	Short: "Build failure",
-	Long:  "",
+	Long:  "Activate bloom light with red",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := client.LightOn(bloom, hass.Red(), hass.LongFlash())
+		err := client.LightOn(bloom, hass.Red(), hass.LongFlash(), hass.Brightness(lightBrightness))
 		if err != nil {
 			log.Fatal(err)
 		}
 	},
 }
 
-var sceneAlertCmd = &cobra.Command{
-	Use:   "alert",
+var sceneDangerCmd = &cobra.Command{
+	Use:   "danger",
 	Short: "",
-	Long:  "",
+	Long:  "Activate bloom and canvas lights with red",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := client.LightOn(bloom, hass.Red(), hass.LongFlash())
+		err := client.LightOn(bloom, hass.Yellow(), hass.LongFlash(), hass.Brightness(100))
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = client.LightOn(canvas, hass.Green(), hass.LongFlash(), hass.TurnOff(2))
+		err = client.LightOn(canvas, hass.Yellow(), hass.TurnOff(10), hass.Brightness(100))
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
+var sceneRingCmd = &cobra.Command{
+	Use:   "ring",
+	Short: "",
+	Long:  "Activate ring light with white",
+	Run: func(cmd *cobra.Command, args []string) {
+		err := client.LightOn(elgato, hass.White(), hass.LongFlash(), hass.Brightness(lightBrightness))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -62,12 +79,12 @@ var sceneExerciseCmd = &cobra.Command{
 	Short: "",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := client.LightOn(bloom, hass.Blue(), hass.LongFlash())
+		err := client.LightOn(bloom, hass.Blue(), hass.LongFlash(), hass.Brightness(lightBrightness))
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = client.LightOn(desklight, hass.Blue(), hass.LongFlash())
+		err = client.LightOn(desklight, hass.Blue(), hass.LongFlash(), hass.Brightness(lightBrightness))
 		if err != nil {
 			log.Fatal(err)
 		}

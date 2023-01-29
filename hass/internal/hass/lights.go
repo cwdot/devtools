@@ -61,3 +61,15 @@ func Blue() func(*LightOnOpts) {
 		s.Color = color.NewRgb(0, 0, 255)
 	}
 }
+
+func Yellow() func(*LightOnOpts) {
+	return func(s *LightOnOpts) {
+		s.Color = color.NewRgb(255, 255, 0)
+	}
+}
+
+func White() func(*LightOnOpts) {
+	return func(s *LightOnOpts) {
+		s.Color = color.NewRgb(255, 255, 255)
+	}
+}
