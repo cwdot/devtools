@@ -5,8 +5,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"hass/internal/hass"
+
+	"github.com/cwdot/go-stdlib/wood"
 )
 
 var verbose bool
@@ -17,6 +20,11 @@ var rootCmd = &cobra.Command{
 	Long:  `Home assistant tool`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
+	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if verbose {
+			wood.SetLevel(logrus.DebugLevel)
+		}
 	},
 }
 

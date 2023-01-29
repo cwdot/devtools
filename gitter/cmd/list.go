@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 
@@ -41,7 +40,7 @@ var listCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		activeRepo, g, layout, err := open()
 		if err != nil {
-			log.Panic(err)
+			wood.Fatal(err)
 		}
 
 		list.PrintBranches(activeRepo, g, layout, allBranches)

@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/cwdot/go-stdlib/wood"
 )
 
 var verbose bool
@@ -16,6 +19,11 @@ var rootCmd = &cobra.Command{
 	Long:  `Manage multiple git branches`,
 	Run: func(cmd *cobra.Command, args []string) {
 		listCmd.Run(cmd, args)
+	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if verbose {
+			wood.SetLevel(logrus.DebugLevel)
+		}
 	},
 }
 

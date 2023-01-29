@@ -2,7 +2,6 @@ package list
 
 import (
 	"fmt"
-	"log"
 	"sort"
 	"strings"
 
@@ -31,12 +30,12 @@ type gitBranchMetadata struct {
 func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, allBranches bool) ([]*gitBranchMetadata, error) {
 	iter, err := g.Branches()
 	if err != nil {
-		log.Panic(err)
+		wood.Fatal(err)
 	}
 
 	head, err := g.Head()
 	if err != nil {
-		log.Panic(err)
+		wood.Fatal(err)
 	}
 
 	refs := make([]*gitBranchMetadata, 0, 20)
@@ -92,7 +91,7 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, allBranches 
 		return nil
 	})
 	if err != nil {
-		log.Panic(err)
+		wood.Fatal(err)
 	}
 
 	sortBranches(layout.Repo.RootBranch, refs)

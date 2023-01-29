@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
 	"gitter/internal/config"
@@ -21,7 +20,7 @@ var configCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		conf, err := config.DefaultConfigFile()
 		if err != nil {
-			log.Panic(err)
+			wood.Fatal(err)
 		}
 		fmt.Println(conf.Location)
 	},
@@ -34,7 +33,7 @@ var configPrintCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		conf, err := config.DefaultConfigFile()
 		if err != nil {
-			log.Panic(err)
+			wood.Fatal(err)
 		}
 		jsonStr, err := yaml.Marshal(conf)
 		fmt.Println(string(jsonStr))

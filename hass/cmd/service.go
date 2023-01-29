@@ -1,10 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/cwdot/go-stdlib/wood"
@@ -33,10 +31,6 @@ var serviceCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		if verbose {
-			wood.SetLevel(logrus.DebugLevel)
-		}
-
 		wood.Debugf("Invoked %s with: %s", service, entityId)
 		err = client.ServiceSimple(domain, service, entityId)
 		if err != nil {
@@ -55,10 +49,6 @@ var noderedCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		if verbose {
-			wood.SetLevel(logrus.DebugLevel)
-		}
-
 		var entityId string
 		switch alias {
 		case "sleeping":
@@ -66,7 +56,7 @@ var noderedCmd = &cobra.Command{
 		case "working":
 			entityId = "button.nodered_77db803615a3b240"
 		default:
-			panic(fmt.Sprintf("unknown alias: %v", alias))
+			wood.Fatalf("unknown alias: %v", alias)
 		}
 
 		wood.Infof("Calling button.press service (%s) for %s", entityId, alias)

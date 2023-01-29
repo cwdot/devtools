@@ -63,7 +63,7 @@ var generateCmd = &cobra.Command{
 
 			entries, err := opbridge.List(tag)
 			if err != nil {
-				panic(err)
+				wood.Fatal(err)
 			}
 
 			for _, entry := range entries {
@@ -79,14 +79,14 @@ var generateCmd = &cobra.Command{
 		}
 
 		if len(pairs) == 0 {
-			wood.Panicf("Found zero credentials to export")
+			wood.Fatalf("Found zero credentials to export")
 		}
 		wood.Infof("Found %d credentials to export", len(pairs))
 
 		// write to credentials file
 		err = generator.Write(pairs, output)
 		if err != nil {
-			panic(err)
+			wood.Fatal(err)
 		}
 	},
 }

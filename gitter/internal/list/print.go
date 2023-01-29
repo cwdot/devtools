@@ -2,7 +2,6 @@ package list
 
 import (
 	"hash/fnv"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -17,7 +16,7 @@ import (
 func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, layout []config.Column, allBranches bool) {
 	rows, err := getGitBranchRows(activeRepo, g, allBranches)
 	if err != nil {
-		log.Panic(err)
+		wood.Fatal(err)
 	}
 
 	bench := createTable(layout)

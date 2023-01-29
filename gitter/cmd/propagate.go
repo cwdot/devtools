@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 	"gitter/internal/propagate"
 )
@@ -27,12 +25,12 @@ var propagateCmd = &cobra.Command{
 
 		activeRepo, _, _, err := open()
 		if err != nil {
-			log.Panic(err)
+			wood.Fatal(err)
 		}
 
 		err = propagate.Propagate(activeRepo, "propagate", dryRun)
 		if err != nil {
-			log.Panic(err)
+			wood.Fatal(err)
 		}
 	},
 }
