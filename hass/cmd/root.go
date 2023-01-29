@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 var client *hass.Client
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose logging")
 	rootCmd.PersistentFlags().BoolVarP(&underTest, "test", "t", false, "Test with env repo")
 }
 

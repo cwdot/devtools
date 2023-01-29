@@ -20,7 +20,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose logging")
 	rootCmd.PersistentFlags().BoolVarP(&underTest, "test", "t", false, "Test with env repo")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
