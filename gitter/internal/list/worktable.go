@@ -1,4 +1,4 @@
-package glist
+package list
 
 import (
 	"os"

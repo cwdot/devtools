@@ -1,4 +1,4 @@
-package glist
+package list
 
 import (
 	"fmt"
@@ -35,8 +35,10 @@ func clone() []*gitBranchMetadata {
 			"",
 			nil,
 			"",
+			0,
 			"",
 			"",
+			0,
 			"",
 		}
 	}

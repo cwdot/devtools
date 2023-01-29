@@ -1,4 +1,4 @@
-package gpropagate
+package propagate
 
 import (
 	"bytes"

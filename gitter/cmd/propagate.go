@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
-	"gitter/internal/gpropagate"
+	"gitter/internal/propagate"
 )
 
 var propagateProject string
@@ -30,7 +30,7 @@ var propagateCmd = &cobra.Command{
 			log.Panic(err)
 		}
 
-		err = gpropagate.Propagate(activeRepo, "propagate", dryRun)
+		err = propagate.Propagate(activeRepo, "propagate", dryRun)
 		if err != nil {
 			log.Panic(err)
 		}

@@ -8,7 +8,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/spf13/cobra"
 	"gitter/internal/config"
-	"gitter/internal/glist"
+	"gitter/internal/list"
 )
 
 var allBranches bool
@@ -44,6 +44,6 @@ var listCmd = &cobra.Command{
 			log.Panic(err)
 		}
 
-		glist.PrintBranches(activeRepo, g, layout, allBranches)
+		list.PrintBranches(activeRepo, g, layout, allBranches)
 	},
 }
