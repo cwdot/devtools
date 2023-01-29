@@ -70,6 +70,11 @@ var generateCmd = &cobra.Command{
 				vault := entry.Vault.ID
 				id := entry.ID
 
+				// only support categories
+				if entry.Category != "API_CREDENTIAL" {
+					continue
+				}
+
 				pairs = append(pairs, generator.Entry{
 					Key:     credential.Key,
 					Value:   fmt.Sprintf("op://%s/%s/%s", vault, id, credential.Field),

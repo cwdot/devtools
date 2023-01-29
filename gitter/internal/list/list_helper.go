@@ -10,6 +10,8 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/pkg/errors"
 	"gitter/internal/config"
+
+	"github.com/cwdot/go-stdlib/wood"
 )
 
 type gitBranchMetadata struct {

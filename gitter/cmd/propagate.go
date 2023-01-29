@@ -3,6 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"gitter/internal/propagate"
+
+	"github.com/cwdot/go-stdlib/wood"
 )
 
 var propagateProject string

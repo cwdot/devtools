@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/cwdot/go-stdlib/wood"
 )
@@ -15,21 +18,27 @@ func List(tag string) ([]OpEntry, error) {
 	cmd := exec.Command("op", "item", "list", "--tags", fmt.Sprintf(`"%s"`, tag), "--format", "json")
 
 	wood.Debugf("Invoked op item list: %s", cmd.String())
-	var out bytes.Buffer
-	cmd.Stdout = &out
+
+	var outs bytes.Buffer
+	var errs bytes.Buffer
+	cmd.Stdout = &outs
+	cmd.Stderr = &errs
 
 	err := cmd.Run()
 	if err != nil {
-		return nil, err
+		os.Stderr.Write(outs.Bytes())
+		os.Stderr.Write(errs.Bytes())
+		return nil, errors.Wrap(err, "list failed")
 	}
 
 	var entries []OpEntry
-	err = json.Unmarshal(out.Bytes(), &entries)
+	err = json.Unmarshal(outs.Bytes(), &entries)
 	if err != nil {
 		return nil, err
 	}
 
-	wood.Debugf("Invoked op item list: %s", out.String())
+	wood.Debugf("Invoked op item list: %s", outs.String())
+	wood.Infof("Found %d credentials matching criteria")
 	return entries, nil
 }
 
@@ -37,15 +46,19 @@ func List(tag string) ([]OpEntry, error) {
 func Inject(template string, output string) error {
 	cmd := exec.Command("op", "inject", "-f", "-i", template, "-o", output)
 
-	var out bytes.Buffer
-	cmd.Stdout = &out
+	var outs bytes.Buffer
+	var errs bytes.Buffer
+	cmd.Stdout = &outs
+	cmd.Stderr = &errs
 
 	err := cmd.Run()
 	if err != nil {
-		return err
+		os.Stderr.Write(outs.Bytes())
+		os.Stderr.Write(errs.Bytes())
+		return errors.Wrap(err, "inject failed")
 	}
 
-	wood.Debugf("Invoked op inject: %s", out.String())
+	wood.Debugf("Invoked op inject: %s", outs.String())
 	return nil
 }
 

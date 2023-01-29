@@ -11,6 +11,7 @@ import (
 	"gitter/internal/config"
 
 	"github.com/cwdot/go-stdlib/timediff"
+	"github.com/cwdot/go-stdlib/wood"
 )
 
 func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, layout []config.Column, allBranches bool) {
