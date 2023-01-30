@@ -72,12 +72,25 @@ var generateCmd = &cobra.Command{
 
 				// only support categories
 				if entry.Category != "API_CREDENTIAL" {
+					wood.Infof("Ignoring item: %s for category %s", entry.Title, entry.Category)
+					continue
+				}
+				// only support categories
+				if entry.Category != "API_CREDENTIAL" {
+					wood.Infof("Ignoring item: %s for category %s", entry.Title, entry.Category)
 					continue
 				}
 
+				fields, err := opbridge.Item(entry.ID, "label=username")
+				if err != nil {
+					wood.Fatal(err)
+				}
+
+				key, value := getCredential(credential, fields)
+
 				pairs = append(pairs, generator.Entry{
-					Key:     credential.Key,
-					Value:   fmt.Sprintf("op://%s/%s/%s", vault, id, credential.Field),
+					Key:     key,
+					Value:   fmt.Sprintf("op://%s/%s/%s", vault, id, value),
 					Comment: entry.Title,
 				})
 			}
@@ -94,4 +107,24 @@ var generateCmd = &cobra.Command{
 			wood.Fatal(err)
 		}
 	},
+}
+
+func getCredential(credential config.Credential, fields map[string]opbridge.Field) (string, string) {
+	var key, value string
+
+	if credential.KeyLabel != "" {
+		field := fields[credential.KeyLabel]
+		key = field.Value
+	} else {
+		panic("bad credential request for key")
+	}
+
+	if credential.ValueLabel != "" {
+		// no special post-processing
+		value = credential.ValueLabel
+	} else {
+		panic("bad credential request for value")
+	}
+
+	return key, value
 }

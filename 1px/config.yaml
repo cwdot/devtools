@@ -1,4 +1,4 @@
 credentials:
   - tags: 1px/$MACHINE
-    key: HASS_TOKEN
-    field: credential
+    key_label: username
+    value_label: credential

@@ -26,7 +26,9 @@ type Config struct {
 }
 
 type Credential struct {
-	Tags  string `yaml:"tags"`
-	Key   string `yaml:"key"`
-	Field string `yaml:"field"`
+	Tags string `yaml:"tags"`
+	//Key        string `yaml:"key"`         // explicit value
+	//Value      string `yaml:"value"`       // explicit value
+	KeyLabel   string `yaml:"key_label"`   // read value from 1p
+	ValueLabel string `yaml:"value_label"` // read value from 1p
 }

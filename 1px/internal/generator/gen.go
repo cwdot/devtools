@@ -34,6 +34,8 @@ func Write(entries []Entry, output string) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to write entry")
 		}
+
+		wood.Debugf("%s=%s\n", entry.Key, entry.Value)
 	}
 
 	err = opbridge.Inject(f.Name(), output)
