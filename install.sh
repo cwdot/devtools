@@ -4,6 +4,9 @@ function install() {
   pushd .
   D=$1
   cd $D || exit
+
+  go mod tidy
+
   go install
   echo "Installed $D"
   popd || exit
