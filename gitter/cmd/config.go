@@ -20,11 +20,7 @@ var configCmd = &cobra.Command{
 	Short: "Configuration management; prints location with no arguments",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		conf, err := config.DefaultConfigFile()
-		if err != nil {
-			wood.Fatal(err)
-		}
-		fmt.Println(conf.Location)
+		printConfLocation()
 	},
 }
 
@@ -40,4 +36,12 @@ var configPrintCmd = &cobra.Command{
 		jsonStr, err := yaml.Marshal(conf)
 		fmt.Println(string(jsonStr))
 	},
+}
+
+func printConfLocation() {
+	conf, err := config.DefaultConfigFile()
+	if err != nil {
+		wood.Fatal(err)
+	}
+	fmt.Println(conf.Location)
 }
