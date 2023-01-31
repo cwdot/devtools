@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
@@ -25,11 +24,7 @@ func init() {
 
 func open() (*config.ActiveRepo, *git.Repository, []config.Column, error) {
 	if underTest {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return nil, nil, nil, err
-		}
-		env := filepath.Join(home, ".env")
+		env := filepath.Join(homeDir, ".env")
 		return config.OpenCustom(env, layoutName, showArchived)
 	}
 	return config.OpenDefault(layoutName, showArchived)

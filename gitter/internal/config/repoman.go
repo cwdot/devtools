@@ -2,10 +2,13 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/pkg/errors"
+
+	"github.com/cwdot/go-stdlib/wood"
 )
 
 func OpenDefault(layoutName string, showArchived bool) (*ActiveRepo, *git.Repository, []Column, error) {
@@ -22,18 +25,7 @@ func OpenCustom(path string, layoutName string, showArchived bool) (*ActiveRepo,
 		return nil, nil, nil, err
 	}
 
-	var layout []Column
-	if layoutName == "default" {
-		layout = DefaultLayout()
-	} else {
-		var ok bool
-		layout, ok = conf.Layouts[layoutName]
-		if !ok {
-			return nil, nil, nil, errors.Errorf("Cannot find layout in config: %s", layoutName)
-		}
-	}
-
-	repo, err := getRepo(conf, path)
+	repo, realPath, err := getRepo(conf, path)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -74,24 +66,65 @@ func OpenCustom(path string, layoutName string, showArchived bool) (*ActiveRepo,
 		trees:    repo.Trees,
 	}
 
-	cork, err := git.PlainOpen(path)
+	cork, err := git.PlainOpen(realPath)
 	if err != nil {
-		return nil, nil, nil, errors.Wrap(err, "failed to open git repo")
+		return nil, nil, nil, errors.Wrapf(err, "failed to open git repo: %s", realPath)
+	}
+
+	var layout []Column
+	if layoutName == "default" {
+		layout = DefaultLayout()
+	} else {
+		var ok bool
+		layout, ok = conf.Layouts[layoutName]
+		if !ok {
+			return nil, nil, nil, errors.Errorf("Cannot find layout in config: %s", layoutName)
+		}
 	}
 
 	return &gr, cork, layout, nil
 }
 
-func getRepo(conf *Config, path string) (*Repo, error) {
+func getRepo(conf *Config, path string) (*Repo, string, error) {
+	candidates, err := computeCandidates(path)
+	if err != nil {
+		return nil, "", err
+	}
+
+	names := make([]string, 0, len(conf.Repos))
 	repos := make(map[string]*Repo)
 	for _, repo := range conf.Repos {
 		home := processHome(repo.Home)
 		repos[home] = &repo
-		if home == path {
-			return &repo, nil
+		for _, candidate := range candidates {
+			if home == candidate {
+				wood.Infof("Found repo: %v", candidate)
+				return &repo, candidate, nil
+			}
 		}
+		names = append(names, repo.Name)
 	}
-	return nil, errors.Errorf("failed to find repo: %s", path)
+
+	wood.Infof("Path candidates: %v", candidates)
+	wood.Infof("Repos: %v", names)
+	return nil, "", errors.Errorf("failed to find repo")
+}
+
+func computeCandidates(path string) ([]string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, errors.Errorf("failed to find home: %s", homeDir)
+	}
+	candidates := make([]string, 0, 5)
+	for {
+		if path == homeDir || path == "/" {
+			// never home dir
+			break
+		}
+		candidates = append(candidates, path)
+		path = filepath.Dir(path)
+	}
+	return candidates, nil
 }
 
 func processHome(value string) string {
