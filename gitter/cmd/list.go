@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
@@ -39,6 +40,10 @@ var listCmd = &cobra.Command{
 		if err != nil {
 			wood.Fatal(err)
 		}
+
+		printConfLocation()
+		fmt.Printf("  Repo: %v\n", activeRepo.Repo.Home)
+		fmt.Println()
 
 		list.PrintBranches(activeRepo, g, layout, allBranches)
 	},

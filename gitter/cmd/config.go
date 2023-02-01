@@ -43,5 +43,5 @@ func printConfLocation() {
 	if err != nil {
 		wood.Fatal(err)
 	}
-	fmt.Println(conf.Location)
+	fmt.Printf("Config: %v\n", conf.Location)
 }

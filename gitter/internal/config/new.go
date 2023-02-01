@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
@@ -28,7 +29,17 @@ func ReadConfigFile(full string) (*Config, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "error unmarshalling template yaml")
 	}
+
 	data.Location = full
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return nil, errors.Wrap(err, "error finding home dir")
+	}
+	for idx, repo := range data.Repos {
+		data.Repos[idx].Home = strings.ReplaceAll(repo.Home, "$HOME", home)
+	}
+
 	return data, nil
 }
 

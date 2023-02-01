@@ -3,7 +3,6 @@ package config
 import (
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/pkg/errors"
@@ -94,11 +93,11 @@ func getRepo(conf *Config, path string) (*Repo, string, error) {
 	names := make([]string, 0, len(conf.Repos))
 	repos := make(map[string]*Repo)
 	for _, repo := range conf.Repos {
-		home := processHome(repo.Home)
+		home := repo.Home
 		repos[home] = &repo
 		for _, candidate := range candidates {
 			if home == candidate {
-				wood.Infof("Found repo: %v", candidate)
+				wood.Debugf("Found repo: %v", candidate)
 				return &repo, candidate, nil
 			}
 		}
@@ -125,14 +124,6 @@ func computeCandidates(path string) ([]string, error) {
 		path = filepath.Dir(path)
 	}
 	return candidates, nil
-}
-
-func processHome(value string) string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		panic(errors.Wrap(err, "error finding home dir").Error())
-	}
-	return strings.ReplaceAll(value, "$HOME", home)
 }
 
 type branchPair struct {
