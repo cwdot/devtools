@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -60,19 +61,28 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, allBranches 
 		var rootTracking, rootDriftDesc, remoteTracking, remoteDriftDesc string
 		var rootDrift, remoteDrift int
 
-		if layout.Repo.RootBranch != "" && layout.Repo.RootBranch != shortName {
-			rootTracking = layout.Repo.RootBranch
-			rootDrift, rootDriftDesc, err = computeDrift(g, layout.Repo.RootBranch, lastChildCommit)
-			if err != nil {
-				return errors.Wrapf(err, "failed to find drift for root: %s", shortName)
-			}
-		}
+		lastTime := lastChildCommit.Committer.When
+		cutoff := time.Now().Add(-14 * 24 * time.Hour)
 
-		if branch.RemoteBranch != "" {
-			remoteTracking = branch.RemoteBranch
-			remoteDrift, remoteDriftDesc, err = computeDrift(g, branch.RemoteBranch, lastChildCommit)
-			if err != nil {
-				return errors.Wrapf(err, "failed to find drift for remote: %s", shortName)
+		// If we're too old, then just don't try.
+		if lastTime.Before(cutoff) {
+			rootDriftDesc = "~~~"
+			remoteDriftDesc = "~~~"
+		} else {
+			if layout.Repo.RootBranch != "" && layout.Repo.RootBranch != shortName {
+				rootTracking = layout.Repo.RootBranch
+				rootDrift, rootDriftDesc, err = computeDrift(g, layout.Repo.RootBranch, lastChildCommit)
+				if err != nil {
+					return errors.Wrapf(err, "failed to find drift for root: %s", shortName)
+				}
+			}
+
+			if branch.RemoteBranch != "" {
+				remoteTracking = branch.RemoteBranch
+				remoteDrift, remoteDriftDesc, err = computeDrift(g, branch.RemoteBranch, lastChildCommit)
+				if err != nil {
+					return errors.Wrapf(err, "failed to find drift for remote: %s", shortName)
+				}
 			}
 		}
 
