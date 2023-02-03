@@ -14,13 +14,19 @@ import (
 	"github.com/cwdot/go-stdlib/wood"
 )
 
-func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, layout []config.Column, allBranches bool) {
-	rows, err := getGitBranchRows(activeRepo, g, allBranches)
+type PrintOpts struct {
+	Layout      []config.Column
+	AllBranches bool
+	NoTrackers  bool
+}
+
+func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts PrintOpts) {
+	rows, err := getGitBranchRows(activeRepo, g, opts)
 	if err != nil {
 		wood.Fatal(err)
 	}
 
-	bench := createTable(layout)
+	bench := createTable(opts.Layout)
 	for _, row := range rows {
 		branch := row.Branch
 

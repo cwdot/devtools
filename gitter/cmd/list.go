@@ -14,12 +14,14 @@ import (
 
 var allBranches bool
 var showArchived bool
+var noTrackers bool
 var layoutName string
 
 func init() {
 	rootCmd.AddCommand(listCmd)
 	listCmd.Flags().BoolVarP(&allBranches, "all", "a", false, "Show all git branches; default branches defined in config")
 	listCmd.Flags().BoolVarP(&showArchived, "archived", "", false, "Show archived branches")
+	listCmd.Flags().BoolVarP(&noTrackers, "notrack", "", false, "Hide tracking info for performance")
 	listCmd.Flags().StringVarP(&layoutName, "layout", "", "default", "Customize layout; default is 'default'")
 }
 
@@ -45,6 +47,11 @@ var listCmd = &cobra.Command{
 		fmt.Printf("  Repo: %v\n", activeRepo.Repo.Home)
 		fmt.Println()
 
-		list.PrintBranches(activeRepo, g, layout, allBranches)
+		opts := list.PrintOpts{
+			Layout:      layout,
+			AllBranches: allBranches,
+			NoTrackers:  noTrackers,
+		}
+		list.PrintBranches(activeRepo, g, opts)
 	},
 }

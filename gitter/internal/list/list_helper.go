@@ -30,7 +30,7 @@ type gitBranchMetadata struct {
 	RemoteDriftDesc string
 }
 
-func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, allBranches bool) ([]*gitBranchMetadata, error) {
+func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts PrintOpts) ([]*gitBranchMetadata, error) {
 	iter, err := g.Branches()
 	if err != nil {
 		wood.Fatal(err)
@@ -49,7 +49,7 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, allBranches 
 	err = iter.ForEach(func(r *plumbing.Reference) error {
 		shortName := r.Name().Short()
 		ref, ok := layout.FindBranch(shortName)
-		if !allBranches && !ok {
+		if !printOpts.AllBranches && !ok {
 			return nil
 		}
 
@@ -67,9 +67,9 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, allBranches 
 		cutoff := time.Now().Add(-14 * 24 * time.Hour)
 
 		// If we're too old, then just don't try.
-		if lastTime.Before(cutoff) {
-			rootDriftDesc = "~~~"
-			remoteDriftDesc = "~~~"
+		if lastTime.Before(cutoff) || printOpts.NoTrackers {
+			rootDriftDesc = "     ~~"
+			remoteDriftDesc = "     ~~"
 		} else {
 			if layout.Repo.RootBranch != "" && layout.Repo.RootBranch != shortName {
 				rootTracking = layout.Repo.RootBranch
