@@ -22,10 +22,9 @@ func Do(g *git.Repository) error {
 
 	b := `        - name: {{ .Name }}
           description: {{ .Description }}
-{{- if .Links.Jira }}
           links:
+            pr: {{ .Links.Pr }}
             jira: {{ .Links.Jira }}
-{{- end }}
 `
 
 	td := config.Branch{

@@ -48,10 +48,12 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, allBranches 
 	// remote is usually child's remote branch
 	err = iter.ForEach(func(r *plumbing.Reference) error {
 		shortName := r.Name().Short()
-		branch, project, archived, ok := layout.FindBranch(shortName)
+		ref, ok := layout.FindBranch(shortName)
 		if !allBranches && !ok {
 			return nil
 		}
+
+		branch := ref.Branch
 
 		lastChildCommit, err := g.CommitObject(r.Hash())
 		if err != nil {
@@ -87,9 +89,9 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, allBranches 
 		}
 
 		refs = append(refs, &gitBranchMetadata{
-			Branch:          branch,
-			Project:         project,
-			Archived:        archived,
+			Branch:          &ref.Branch,
+			Project:         ref.Project,
+			Archived:        ref.Archived,
 			LastCommit:      lastChildCommit,
 			RootTracking:    rootTracking,
 			RootDrift:       rootDrift,

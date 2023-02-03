@@ -34,7 +34,7 @@ func OpenCustom(path string, layoutName string, showArchived bool) (*ActiveRepo,
 		sets = append(sets, repo.Archived)
 	}
 
-	branches := make(map[string]*branchPair)
+	branches := make(map[string]*BranchRef)
 	projects := make(map[string][]Branch)
 	for idx, set := range sets {
 		for project, rBranches := range set {
@@ -49,7 +49,7 @@ func OpenCustom(path string, layoutName string, showArchived bool) (*ActiveRepo,
 					archived = true
 				}
 
-				branches[rBranch.Name] = &branchPair{
+				branches[rBranch.Name] = &BranchRef{
 					Project:  project,
 					Branch:   rBranch,
 					Archived: archived,
@@ -126,23 +126,23 @@ func computeCandidates(path string) ([]string, error) {
 	return candidates, nil
 }
 
-type branchPair struct {
+type BranchRef struct {
 	Project  string
 	Branch   Branch
 	Archived bool
 }
 type ActiveRepo struct {
 	Repo     *Repo
-	branches map[string]*branchPair
+	branches map[string]*BranchRef
 	projects BranchSet
 	trees    TreeSet
 }
 
-func (r *ActiveRepo) FindBranch(shortName string) (*Branch, string, bool, bool) {
+func (r *ActiveRepo) FindBranch(shortName string) (*BranchRef, bool) {
 	if val, ok := r.branches[shortName]; ok {
-		return &val.Branch, val.Project, val.Archived, ok
+		return val, ok
 	}
-	return nil, "", false, false
+	return nil, false
 }
 
 func (r *ActiveRepo) FindByProject(projectName string) ([]Branch, bool) {

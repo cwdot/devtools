@@ -27,8 +27,3 @@ var newCmd = &cobra.Command{
 		}
 	},
 }
-
-//type B struct {
-//
-//	Branch string
-//}
