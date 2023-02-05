@@ -75,7 +75,7 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts Pr
 				rootTracking = layout.Repo.RootBranch
 				rootDrift, rootDriftDesc, err = computeDrift(g, layout.Repo.RootBranch, lastChildCommit)
 				if err != nil {
-					return errors.Wrapf(err, "failed to find drift for root: %s", shortName)
+					wood.Warnf("Failed to find drift for root: %s => %s", shortName, err)
 				}
 			}
 
@@ -83,7 +83,7 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts Pr
 				remoteTracking = branch.RemoteBranch
 				remoteDrift, remoteDriftDesc, err = computeDrift(g, branch.RemoteBranch, lastChildCommit)
 				if err != nil {
-					return errors.Wrapf(err, "failed to find drift for remote: %s", shortName)
+					wood.Warnf("Failed to find drift for remote: %s => %s", shortName, err)
 				}
 			}
 		}

@@ -13,7 +13,7 @@ import (
 func computeDrift(g *git.Repository, tracking string, childTop *object.Commit) (int, string, error) {
 	trackingHash, err := g.ResolveRevision(plumbing.Revision(tracking))
 	if err != nil {
-		return 0, "", errors.Wrapf(err, "failed to resolve drift revision: %s", "shortName")
+		return 0, "", errors.Wrapf(err, "failed to resolve drift revision: %s", tracking)
 	}
 
 	return findHashInCommits(childTop, *trackingHash)
