@@ -1,14 +1,12 @@
 package propagate
 
 import (
-	"bytes"
-	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/pkg/errors"
 	"gitter/internal/config"
 
+	"github.com/cwdot/go-stdlib/proc"
 	"github.com/cwdot/go-stdlib/wood"
 )
 
@@ -85,24 +83,11 @@ func (x *gitX) run(args ...string) error {
 		return nil
 	}
 
-	cmd := exec.Command("/opt/homebrew/bin/git", args...)
-
-	wood.Debugf("Executing git: %s with %s", cmd, args)
-
-	var outs bytes.Buffer
-	var errs bytes.Buffer
-	cmd.Stdout = &outs
-	cmd.Stderr = &errs
-	cmd.Dir = "/Users/indy/.env"
-
-	err := cmd.Run()
+	opts := proc.RunOpts{Dir: "/Users/indy/.env"}
+	_, _, err := proc.Run("/opt/homebrew/bin/git", opts, args...)
 	if err != nil {
-		os.Stderr.Write(outs.Bytes())
-		os.Stderr.Write(errs.Bytes())
 		return errors.Wrap(err, "git call failed")
 	}
-
-	wood.Debugf("Executed git: %s", outs.String())
 
 	return nil
 }

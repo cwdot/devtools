@@ -10,6 +10,7 @@ type Repo struct {
 	BaseLinks  BaseLinks `yaml:"base_links"`
 	Active     BranchSet `yaml:"active"`
 	Archived   BranchSet `yaml:"archived"`
+	Scripts    []Script  `yaml:"scripts"`
 	Trees      TreeSet   `yaml:"trees"`
 }
 
@@ -33,4 +34,11 @@ type Branch struct {
 
 type TreeBranch struct {
 	Name string `yaml:"name"`
+}
+
+type Script struct {
+	Name      string   `yaml:"name"`
+	Lifecycle string   `yaml:"lifecycle"`
+	Command   string   `yaml:"command"`
+	Arguments []string `yaml:"arguments"`
 }
