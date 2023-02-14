@@ -7,12 +7,14 @@ import (
 	"github.com/cwdot/go-stdlib/wood"
 )
 
-var propagateProject string
+var tree string
+var start string
 var dryRun bool
 
 func init() {
 	rootCmd.AddCommand(propagateCmd)
-	propagateCmd.Flags().StringVarP(&propagateProject, "project", "", "", "Customize layout; default is 'default'")
+	propagateCmd.Flags().StringVarP(&tree, "tree", "t", "", "Tree name")
+	propagateCmd.Flags().StringVarP(&start, "start", "s", "", "Parent branch; this is the first branch in the chain. Default is master")
 	propagateCmd.Flags().BoolVarP(&dryRun, "dryrun", "", false, "Dry run")
 }
 
@@ -21,7 +23,7 @@ var propagateCmd = &cobra.Command{
 	Short: "",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		if propagateProject == "" {
+		if tree == "" {
 			panic("Missing --project argument; part of the trees block")
 		}
 
@@ -30,7 +32,7 @@ var propagateCmd = &cobra.Command{
 			wood.Fatal(err)
 		}
 
-		err = propagate.Propagate(activeRepo, "propagate", dryRun)
+		err = propagate.Propagate(activeRepo, tree, start, dryRun)
 		if err != nil {
 			wood.Fatal(err)
 		}

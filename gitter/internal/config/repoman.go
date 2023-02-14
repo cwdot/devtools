@@ -131,6 +131,7 @@ type BranchRef struct {
 	Branch   Branch
 	Archived bool
 }
+
 type ActiveRepo struct {
 	Repo     *Repo
 	branches map[string]*BranchRef
@@ -152,8 +153,8 @@ func (r *ActiveRepo) FindByProject(projectName string) ([]Branch, bool) {
 	return nil, false
 }
 
-func (r *ActiveRepo) FindTree(projectName string) ([]TreeBranch, bool) {
-	if val, ok := r.trees[projectName]; ok {
+func (r *ActiveRepo) FindTree(tree string) ([]TreeBranch, bool) {
+	if val, ok := r.trees[tree]; ok {
 		return val, ok
 	}
 	return nil, false
