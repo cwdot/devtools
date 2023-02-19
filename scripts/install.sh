@@ -28,10 +28,10 @@ function install() {
   echo ""
 }
 
+git pull --rebase
+
 install 1px
 
 install hass
 
 install gitter
-
-
