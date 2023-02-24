@@ -5,12 +5,16 @@ function install() {
   D=$1
   cd ../$D || exit
 
+  echo "[$D] installing..."
+  echo "[$D] go mod tidy"
   go mod tidy
 
+  echo "[$D] go install"
   go install
   echo "Installed $D"
   popd || exit
 
+  echo "[$D] version"
   ~/go/bin/$D version
 
   if [[ "$(uname)" == "Darwin" ]]
