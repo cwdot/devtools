@@ -16,12 +16,7 @@ import (
 	"github.com/cwdot/go-stdlib/wood"
 )
 
-const (
-	domain = "http://192.168.1.101:8123"
-	//domain           = "https://quakequack.duckdns.org"
-)
-
-func New() (*Client, error) {
+func New(hassDomain string) (*Client, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, errors.Wrap(err, "error finding home dir")
@@ -38,11 +33,12 @@ func New() (*Client, error) {
 		return nil, errors.New("failed to find hass token")
 	}
 
-	return &Client{token: token}, nil
+	return &Client{token: token, hassDomain: hassDomain}, nil
 }
 
 type Client struct {
-	token string
+	token      string
+	hassDomain string
 }
 
 func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
@@ -131,7 +127,7 @@ func (c *Client) post(endpoint string, arguments map[string]any) error {
 	payload, _ := json.Marshal(arguments)
 	wood.Debugf("Invoked %s with: %s", endpoint, string(payload))
 
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", domain, endpoint), requestBody)
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", c.hassDomain, endpoint), requestBody)
 	if err != nil {
 		return err
 	}

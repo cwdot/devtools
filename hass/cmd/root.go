@@ -29,9 +29,11 @@ var rootCmd = &cobra.Command{
 }
 
 var client *hass.Client
+var endpoint string
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose logging")
+	rootCmd.PersistentFlags().StringVar(&endpoint, "endpoint", "https://quakequack.duckdns.org", "HASS endpoint")
 }
 
 func Execute() {
@@ -42,7 +44,7 @@ func Execute() {
 	}
 
 	var err error
-	client, err = hass.New()
+	client, err = hass.New(endpoint)
 	if err != nil {
 		log.Fatalf("Failed to create HASS API client: %v", err)
 	}
