@@ -16,8 +16,6 @@ github.com/cloudflare/circl v1.3.2 h1:VWp8dY3yH69fdM7lM6A1+NhhVoDu9vqK0jOgmkQHFW
 github.com/cloudflare/circl v1.3.2/go.mod h1:+CauBF6R70Jqcyl8N2hC8pAXYbWkGIezuSbuGLtRhnw=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
-github.com/cwdot/go-stdlib v0.0.4 h1:4nqN4WJJFobON6F99wCacKRw8TdJhVhS4OYgipV1Uv8=
-github.com/cwdot/go-stdlib v0.0.4/go.mod h1:hwFnPfGVkNGiPECGdDu/ymnfegSt5ARjOq+KFD7e5kU=
 github.com/cwdot/go-stdlib v0.0.5 h1:zXhQrCe1rboNBmQCSbNWWxM31yLCvCj25I/fMuhKb2w=
 github.com/cwdot/go-stdlib v0.0.5/go.mod h1:hwFnPfGVkNGiPECGdDu/ymnfegSt5ARjOq+KFD7e5kU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

@@ -24,7 +24,7 @@ var propagateCmd = &cobra.Command{
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		if tree == "" {
-			panic("Missing --project argument; part of the trees block")
+			panic("Missing --tree argument; part of the trees block")
 		}
 
 		activeRepo, _, _, err := open()
