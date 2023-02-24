@@ -13,26 +13,22 @@ import (
 
 func Propagate(activeRepo *config.ActiveRepo, tree string, defaultParent string, dryRun bool) error {
 	home := activeRepo.Repo.Home
-	wood.Debugf("home: %s", home)
-	wood.Debugf("tree: %s", tree)
-	wood.Debugf("defaultParent: %s", defaultParent)
+	wood.Debugf("arg %s: %s", color.It(color.Blue, "home"), color.It(color.Green, home))
+	wood.Debugf("arg %s: %s", color.It(color.Blue, "tree"), color.It(color.Green, tree))
+	wood.Debugf("arg %s: %s", color.It(color.Blue, "defaultParent"), color.It(color.Green, defaultParent))
 	if dryRun {
-		wood.Warnf("Dryrun: true")
+		wood.Warnf("arg %s: %s", color.It(color.Blue, "dryRun"), color.It(color.Green, "true"))
 	} else {
-		wood.Debugf("dryRun: true")
+		wood.Debugf("arg %s: %s", color.It(color.Blue, "dryRun"), color.It(color.Green, "false"))
 	}
 
 	treeBranches, ok := activeRepo.FindTree(tree)
 	if !ok {
-		return errors.Errorf("no tree found: %s", tree)
+		return errors.Errorf("no tree found: %s", color.It(color.Green, tree))
 	}
 
 	branches, names := calcBranches(treeBranches, defaultParent)
-
 	wood.Infof("Propagation: %s", strings.Join(names, " => "))
-	if dryRun {
-		wood.Warnf("Dryrun: true")
-	}
 
 	gx := gitc{DryRun: dryRun, Home: home}
 
@@ -116,7 +112,7 @@ func (x *gitc) run(args ...string) error {
 	}
 
 	opts := proc.RunOpts{Dir: x.Home}
-	_, _, err := proc.Run("/opt/homebrew/bin/git", opts, args...)
+	_, _, err := proc.Run("git", opts, args...)
 	if err != nil {
 		return errors.Wrap(err, "git call failed")
 	}
