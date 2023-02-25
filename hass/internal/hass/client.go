@@ -16,7 +16,12 @@ import (
 	"github.com/cwdot/go-stdlib/wood"
 )
 
-func New(hassDomain string) (*Client, error) {
+const (
+	domain1 = "https://quakequack.duckdns.org"
+	domain2 = "http://192.168.1.101:8123"
+)
+
+func New(overrideEndpoint string) (*Client, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, errors.Wrap(err, "error finding home dir")
@@ -33,12 +38,12 @@ func New(hassDomain string) (*Client, error) {
 		return nil, errors.New("failed to find hass token")
 	}
 
-	return &Client{token: token, hassDomain: hassDomain}, nil
+	return &Client{token: token, overrideEndpoint: overrideEndpoint}, nil
 }
 
 type Client struct {
-	token      string
-	hassDomain string
+	token            string
+	overrideEndpoint string
 }
 
 func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
@@ -125,29 +130,45 @@ func (c *Client) post(endpoint string, arguments map[string]any) error {
 	requestBody := bytes.NewBuffer(postBody)
 
 	payload, _ := json.Marshal(arguments)
-	wood.Debugf("Invoked %s with: %s", endpoint, string(payload))
-
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", c.hassDomain, endpoint), requestBody)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.token)
+	wood.Tracef("Invoked %s with: %s", endpoint, string(payload))
 
 	client := http.Client{
 		Timeout: 30 * time.Second,
 	}
 
-	res, err := client.Do(req)
-	if err != nil {
-		return errors.Wrap(err, "failed to post api")
+	invoke := func(domain string) error {
+		url := fmt.Sprintf("%s/%s", domain, endpoint)
+		req, err := http.NewRequest(http.MethodPost, url, requestBody)
+		if err != nil {
+			return err
+		}
+
+		wood.Debugf("Invoked POST %s", url)
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+c.token)
+
+		res, err := client.Do(req)
+		if err != nil {
+			return errors.Wrap(err, "failed to post api")
+		}
+
+		_, err = io.ReadAll(res.Body)
+		if err != nil {
+			return errors.Wrap(err, "failed to read body")
+		}
+		return nil
 	}
 
-	_, err = io.ReadAll(res.Body)
-	if err != nil {
-		return errors.Wrap(err, "failed to read body")
+	if c.overrideEndpoint != "" {
+		return invoke(c.overrideEndpoint)
 	}
 
-	return nil
+	var err error
+	for _, domain := range []string{domain1, domain2} {
+		if err = invoke(domain); err == nil {
+			break
+		}
+	}
+	return err
 }

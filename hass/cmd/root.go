@@ -33,7 +33,7 @@ var endpoint string
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose logging")
-	rootCmd.PersistentFlags().StringVar(&endpoint, "endpoint", "https://quakequack.duckdns.org", "HASS endpoint")
+	rootCmd.PersistentFlags().StringVar(&endpoint, "endpoint", "", "HASS endpoint")
 }
 
 func Execute() {
