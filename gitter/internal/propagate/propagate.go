@@ -87,7 +87,8 @@ func (x *gitc) checkout(branch string) error {
 }
 
 func (x *gitc) rebase(branch string, parent string) error {
-	err := x.run("rebase", parent)
+	wood.Infof("Rebasing %s with %s", color.It(color.Green, branch), color.It(color.Cyan, parent))
+	err := x.run("rebase", "-i", parent)
 	if err != nil {
 		return errors.Wrap(err, "rebase failed")
 	}
