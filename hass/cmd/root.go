@@ -5,12 +5,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/sirupsen/logrus"
+	"github.com/cwdot/go-stdlib/wood"
 	"github.com/spf13/cobra"
 
 	"hass/internal/hass"
-
-	"github.com/cwdot/go-stdlib/wood"
 )
 
 var verbose bool
@@ -24,7 +22,7 @@ var rootCmd = &cobra.Command{
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if verbose {
-			wood.SetLevel(logrus.DebugLevel)
+			wood.SetLevel(wood.DebugLevel)
 		}
 	},
 }
