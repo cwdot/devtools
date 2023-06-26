@@ -10,6 +10,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/pkg/errors"
+
 	"gitter/internal/config"
 
 	"github.com/cwdot/go-stdlib/wood"
@@ -140,7 +141,7 @@ func sortBranches(rootBranchName string, refs []*gitBranchMetadata) {
 	})
 }
 
-func GenerateLinks(base config.BaseLinks, links config.BranchLinks) string {
+func GenerateLinks(base *config.BaseLinks, links *config.Branch) string {
 	if links.Pr != "" {
 		return createCsvLinks(base.PrBase, links.Pr)
 	}

@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-git/go-git/v5"
-	tw "github.com/olekukonko/tablewriter"
-	"gitter/internal/config"
-
 	"github.com/cwdot/go-stdlib/timediff"
 	"github.com/cwdot/go-stdlib/wood"
+	"github.com/go-git/go-git/v5"
+	tw "github.com/olekukonko/tablewriter"
+
+	"gitter/internal/config"
 )
 
 type PrintOpts struct {
@@ -34,7 +34,7 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts PrintO
 		if branch != nil {
 			name = branch.Name
 			description = branch.Description
-			links = GenerateLinks(activeRepo.Repo.BaseLinks, branch.Links)
+			links = GenerateLinks(&activeRepo.Repo.BaseLinks, branch)
 		}
 
 		rootRow := activeRepo.Repo.RootBranch == name

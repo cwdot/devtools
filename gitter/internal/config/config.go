@@ -20,16 +20,12 @@ type BaseLinks struct {
 	RepoBase string `yaml:"repo_base"`
 }
 
-type BranchLinks struct {
-	Pr   string `yaml:"pr"`
-	Jira string `yaml:"jira"`
-}
-
 type Branch struct {
-	Name         string      `yaml:"name"`
-	RemoteBranch string      `yaml:"remote"`
-	Description  string      `yaml:"description"`
-	Links        BranchLinks `yaml:"links"`
+	Name         string `yaml:"name"`
+	RemoteBranch string `yaml:"remote"`
+	Description  string `yaml:"description"`
+	Pr           string `yaml:"pr"`
+	Jira         string `yaml:"jira"`
 }
 
 type TreeBranch struct {
