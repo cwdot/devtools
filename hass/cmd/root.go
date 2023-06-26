@@ -7,6 +7,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
 	"hass/internal/hass"
 
 	"github.com/cwdot/go-stdlib/wood"

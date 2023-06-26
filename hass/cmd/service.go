@@ -8,17 +8,22 @@ import (
 	"github.com/cwdot/go-stdlib/wood"
 )
 
-var domain, service, entityId string
-var alias string
+//var domain, service string
+//var entityId string
+//var alias string
 
 func init() {
 	rootCmd.AddCommand(serviceCmd)
 	rootCmd.AddCommand(noderedCmd)
 
-	serviceCmd.Flags().StringVar(&domain, "domain", "", "Domain like light or button")
-	serviceCmd.Flags().StringVar(&service, "service", "", "Action to perform like press, turn_on, or turn_off")
-	serviceCmd.Flags().StringVar(&entityId, "entity", "", "Home assistant entity id")
-	noderedCmd.Flags().StringVar(&alias, "alias", "working", "Nodered alias [sleeping, working]")
+	serviceCmd.Flags().String("domain", "", "Domain like light or button")
+	serviceCmd.Flags().String("service", "", "Action to perform like press, turn_on, or turn_off")
+	serviceCmd.Flags().String("entity", "", "Home assistant entity id")
+	serviceCmd.Flags().String("message", "", "Home assistant message")
+	serviceCmd.Flags().StringSlice("k ddd", []string{}, "Custom key/value pairs; separated by a space")
+
+	//serviceCmd.Flags().StringArray()
+	noderedCmd.Flags().String("alias", "working", "Nodered alias [sleeping, working]")
 }
 
 var serviceCmd = &cobra.Command{
@@ -31,10 +36,22 @@ var serviceCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		domain, _ := cmd.Flags().GetString("domain")
+		service, _ := cmd.Flags().GetString("service")
+		entityId, _ := cmd.Flags().GetString("entity")
+		message, _ := cmd.Flags().GetString("message")
+
 		wood.Debugf("Invoked %s with: %s", service, entityId)
-		err = client.ServiceSimple(domain, service, entityId)
+
+		a, _ := cmd.Flags().GetStringSlice("k")
+		log.Println(a)
+
+		arguments := map[string]any{
+			"message": message,
+		}
+		err = client.Service(domain, service, arguments)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("errrr")
 		}
 	},
 }
@@ -48,6 +65,8 @@ var noderedCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		alias, _ := cmd.Flags().GetString("alias")
 
 		var entityId string
 		switch alias {
