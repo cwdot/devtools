@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
-
 	"github.com/cwdot/go-stdlib/wood"
+	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -37,8 +36,8 @@ var titleCmd = &cobra.Command{
 		parts := make([]string, 0, 3)
 		branch := ref.Branch
 
-		if branch.Links.Jira != "" {
-			parts = append(parts, branch.Links.Jira)
+		if branch.Jira != "" {
+			parts = append(parts, branch.Jira)
 		}
 		if branch.Description != "" {
 			parts = append(parts, branch.Description)

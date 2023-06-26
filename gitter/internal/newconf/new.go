@@ -6,11 +6,11 @@ import (
 	"regexp"
 	"text/template"
 
+	"github.com/cwdot/go-stdlib/wood"
 	"github.com/go-git/go-git/v5"
 	"github.com/pkg/errors"
-	"gitter/internal/config"
 
-	"github.com/cwdot/go-stdlib/wood"
+	"gitter/internal/config"
 )
 
 func Do(g *git.Repository) error {
@@ -30,10 +30,8 @@ func Do(g *git.Repository) error {
 	td := config.Branch{
 		Name:        name,
 		Description: "",
-		Links: config.BranchLinks{
-			Pr:   "",
-			Jira: findJira(name),
-		},
+		Pr:          "",
+		Jira:        findJira(name),
 	}
 
 	t, err := template.New("branch").Parse(b)
