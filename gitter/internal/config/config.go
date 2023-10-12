@@ -16,6 +16,7 @@ type Repo struct {
 }
 
 type JiraConfig struct {
+	Base   string `yaml:"base"`
 	Domain string `yaml:"domain"`
 	Token  string `yaml:"token"`
 }

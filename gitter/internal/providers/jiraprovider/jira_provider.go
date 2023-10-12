@@ -15,7 +15,7 @@ func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue
 		return m, nil
 	}
 
-	tp := &jira.BearerAuthTransport{
+	tp := &jira.PATAuthTransport{
 		Token: config.Token,
 	}
 	jiraClient, _ := jira.NewClient(tp.Client(), config.Domain)
