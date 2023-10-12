@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/andygrunwald/go-jira"
+	"github.com/pkg/errors"
 
 	"gitter/internal/config"
 )
@@ -15,12 +16,16 @@ func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue
 		return m, nil
 	}
 
-	tp := &jira.PATAuthTransport{
-		Token: config.Token,
+	tp := &jira.BasicAuthTransport{
+		Username: config.Username,
+		Password: config.Password,
 	}
-	jiraClient, _ := jira.NewClient(tp.Client(), config.Domain)
+	jiraClient, err := jira.NewClient(tp.Client(), config.Domain)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error creating client")
+	}
 	jql := fmt.Sprintf("key in (%s)", strings.Join(ids, ","))
-	issues, _, err := jiraClient.Issue.Search(jql, &jira.SearchOptions{
+	issues, res, err := jiraClient.Issue.Search(jql, &jira.SearchOptions{
 		StartAt:       0,
 		MaxResults:    25,
 		Expand:        "",
@@ -28,6 +33,7 @@ func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue
 		ValidateQuery: "",
 	})
 	if err != nil {
+		fmt.Println("responses:", *res.Response)
 		fmt.Println("JQL:", jql)
 		return nil, err
 	}
