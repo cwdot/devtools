@@ -6,7 +6,7 @@ import (
 	"github.com/andygrunwald/go-jira"
 )
 
-func GetIssues(ids ...string) ([]*jira.Issue, error) {
+func GetIssues(ids ...string) (map[string]*jira.Issue, error) {
 	jiraClient, _ := jira.NewClient(nil, "https://issues.apache.org/jira/")
 	issue, _, _ := jiraClient.Issue.Get(ids[0], nil)
 
@@ -14,5 +14,8 @@ func GetIssues(ids ...string) ([]*jira.Issue, error) {
 	fmt.Printf("Type: %s\n", issue.Fields.Type.Name)
 	fmt.Printf("Priority: %s\n", issue.Fields.Priority.Name)
 
-	return []*jira.Issue{issue}, nil
+	m := make(map[string]*jira.Issue)
+	m[issue.Key] = issue
+
+	return m, nil
 }

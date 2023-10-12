@@ -31,7 +31,7 @@ type GitBranchMetadata struct {
 	RemoteDriftDesc string
 }
 
-func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts config. PrintOpts) ([]*GitBranchMetadata, error) {
+func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts config.PrintOpts) ([]*GitBranchMetadata, error) {
 	iter, err := g.Branches()
 	if err != nil {
 		wood.Fatal(err)
@@ -149,7 +149,7 @@ func GenerateLinks(base *config.Repo, links *config.Branch) string {
 		if base.Jira == nil {
 			return "config err"
 		}
-		return createCsvLinks(base.Jira.JiraBase, links.Jira)
+		return createCsvLinks(base.Jira.BrowseBase, links.Jira)
 	}
 	return ""
 }

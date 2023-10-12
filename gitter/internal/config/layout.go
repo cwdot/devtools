@@ -31,6 +31,7 @@ const (
 	RemoteDrift     ColumnKind = "remote-drift"
 	RemoteDriftDesc ColumnKind = "remote-drift-desc"
 	RemoteTracking  ColumnKind = "remote-tracking"
+	JiraStatus      ColumnKind = "jira-status"
 	Links           ColumnKind = "links"
 
 	Nothing  WrapStyle = ""
@@ -50,6 +51,7 @@ func DefaultLayout() []Column {
 		// {14, RootTracking, "R TRACKING", "truncate", tw.Normal, tw.Normal},
 		// {12, RemoteDriftDesc, "REM DRIFT", "", tw.Normal, tw.Normal},
 		// {14, RemoteTracking, "REM TRACKING", "truncate", tw.Normal, tw.Normal},
+		{20, JiraStatus, "Jira Status", "truncate", tw.Normal, tw.Normal},
 		{30, Links, "LINKS", "", tw.Normal, tw.Normal},
 	}
 }

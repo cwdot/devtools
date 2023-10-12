@@ -1,6 +1,7 @@
 package list
 
 import (
+	"fmt"
 	"hash/fnv"
 	"strconv"
 	"strings"
@@ -13,10 +14,25 @@ import (
 
 	"gitter/internal/config"
 	"gitter/internal/providers/gitprovider"
+	"gitter/internal/providers/jiraprovider"
 )
 
 func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config.PrintOpts) {
 	rows, err := gitprovider.GetGitBranchRows(activeRepo, g, opts)
+	if err != nil {
+		wood.Fatal(err)
+	}
+
+	jiras := make([]string, 0, 10)
+	for _, r := range rows {
+		fmt.Println(r.Branch.Jira)
+		if r.Branch.Jira != "" {
+			jiras = append(jiras, r.Branch.Jira)
+		}
+	}
+	fmt.Println(jiras)
+
+	issues, err := jiraprovider.GetIssues(jiras...)
 	if err != nil {
 		wood.Fatal(err)
 	}
@@ -26,10 +42,15 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 		branch := row.Branch
 
 		var name, description, links string
+		var jiraStatus string
 		if branch != nil {
 			name = branch.Name
 			description = branch.Description
 			links = gitprovider.GenerateLinks(activeRepo.Repo, branch)
+
+			if issue, ok := issues[branch.Jira]; ok {
+				jiraStatus = issue.Fields.Status.Name
+			}
 		}
 
 		rootRow := activeRepo.Repo.RootBranch == name
@@ -69,6 +90,7 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 		output[config.RemoteDrift] = strconv.Itoa(row.RemoteDrift)
 		output[config.RemoteDriftDesc] = row.RemoteDriftDesc
 		output[config.RemoteTracking] = row.RemoteTracking
+		output[config.JiraStatus] = jiraStatus
 		output[config.Links] = links
 
 		colors := colorDataRow(row.Project, rootRow, commitDate, row.RootDrift, row.RemoteDrift)
