@@ -46,10 +46,10 @@ func DefaultLayout() []Column {
 		{30, LastCommitted, "LAST COMMITTED", "truncate", tw.Normal, tw.Normal},
 		{20, CommittedDate, "COMMITTED DATE", "", tw.Normal, tw.Normal},
 		{8, RelDate, "REL DATE", "", tw.Normal, tw.Normal},
-		{12, RootDriftDesc, "R DRIFT", "", tw.Normal, tw.Normal},
-		{14, RootTracking, "R TRACKING", "truncate", tw.Normal, tw.Normal},
-		{12, RemoteDriftDesc, "REM DRIFT", "", tw.Normal, tw.Normal},
-		{14, RemoteTracking, "REM TRACKING", "truncate", tw.Normal, tw.Normal},
+		// {12, RootDriftDesc, "R DRIFT", "", tw.Normal, tw.Normal},
+		// {14, RootTracking, "R TRACKING", "truncate", tw.Normal, tw.Normal},
+		// {12, RemoteDriftDesc, "REM DRIFT", "", tw.Normal, tw.Normal},
+		// {14, RemoteTracking, "REM TRACKING", "truncate", tw.Normal, tw.Normal},
 		{30, Links, "LINKS", "", tw.Normal, tw.Normal},
 	}
 }
