@@ -16,9 +16,8 @@ type Repo struct {
 }
 
 type JiraConfig struct {
-	BrowseBase string `yaml:"base"`
-	Domain     string `yaml:"domain"`
-	Token      string `yaml:"token"`
+	Domain string `yaml:"domain"`
+	Token  string `yaml:"token"`
 }
 
 type BaseLinks struct {

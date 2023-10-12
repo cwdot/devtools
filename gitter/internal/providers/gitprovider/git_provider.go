@@ -149,7 +149,7 @@ func GenerateLinks(base *config.Repo, links *config.Branch) string {
 		if base.Jira == nil {
 			return "config err"
 		}
-		return createCsvLinks(base.Jira.BrowseBase, links.Jira)
+		return createCsvLinks(base.Jira.Domain, links.Jira)
 	}
 	return ""
 }

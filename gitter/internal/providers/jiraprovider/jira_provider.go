@@ -2,20 +2,38 @@ package jiraprovider
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/andygrunwald/go-jira"
+
+	"gitter/internal/config"
 )
 
-func GetIssues(ids ...string) (map[string]*jira.Issue, error) {
-	jiraClient, _ := jira.NewClient(nil, "https://issues.apache.org/jira/")
-	issue, _, _ := jiraClient.Issue.Get(ids[0], nil)
-
-	fmt.Printf("%s: %+v\n", issue.Key, issue.Fields.Summary)
-	fmt.Printf("Type: %s\n", issue.Fields.Type.Name)
-	fmt.Printf("Priority: %s\n", issue.Fields.Priority.Name)
-
+func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue, error) {
 	m := make(map[string]*jira.Issue)
-	m[issue.Key] = issue
+	if config == nil {
+		return m, nil
+	}
 
+	tp := &jira.BearerAuthTransport{
+		Token: config.Token,
+	}
+	jiraClient, _ := jira.NewClient(tp.Client(), config.Domain)
+	jql := fmt.Sprintf("key in (%s)", strings.Join(ids, ","))
+	issues, _, err := jiraClient.Issue.Search(jql, &jira.SearchOptions{
+		StartAt:       0,
+		MaxResults:    25,
+		Expand:        "",
+		Fields:        []string{"status"},
+		ValidateQuery: "",
+	})
+	if err != nil {
+		fmt.Println("JQL:", jql)
+		return nil, err
+	}
+
+	for _, issue := range issues {
+		m[issue.Key] = &issue
+	}
 	return m, nil
 }

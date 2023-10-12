@@ -1,7 +1,6 @@
 package list
 
 import (
-	"fmt"
 	"hash/fnv"
 	"strconv"
 	"strings"
@@ -25,14 +24,11 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 
 	jiras := make([]string, 0, 10)
 	for _, r := range rows {
-		fmt.Println(r.Branch.Jira)
 		if r.Branch.Jira != "" {
 			jiras = append(jiras, r.Branch.Jira)
 		}
 	}
-	fmt.Println(jiras)
-
-	issues, err := jiraprovider.GetIssues(jiras...)
+	issues, err := jiraprovider.GetIssues(activeRepo.Repo.Jira, jiras...)
 	if err != nil {
 		wood.Fatal(err)
 	}
@@ -41,13 +37,11 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 	for _, row := range rows {
 		branch := row.Branch
 
-		var name, description, links string
-		var jiraStatus string
+		var name, description, links, jiraStatus string
 		if branch != nil {
 			name = branch.Name
 			description = branch.Description
 			links = gitprovider.GenerateLinks(activeRepo.Repo, branch)
-
 			if issue, ok := issues[branch.Jira]; ok {
 				jiraStatus = issue.Fields.Status.Name
 			}
