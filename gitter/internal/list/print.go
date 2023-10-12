@@ -12,16 +12,11 @@ import (
 	tw "github.com/olekukonko/tablewriter"
 
 	"gitter/internal/config"
+	"gitter/internal/providers/gitprovider"
 )
 
-type PrintOpts struct {
-	Layout      []config.Column
-	AllBranches bool
-	NoTrackers  bool
-}
-
-func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts PrintOpts) {
-	rows, err := getGitBranchRows(activeRepo, g, opts)
+func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config.PrintOpts) {
+	rows, err := gitprovider.GetGitBranchRows(activeRepo, g, opts)
 	if err != nil {
 		wood.Fatal(err)
 	}
@@ -34,7 +29,7 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts PrintO
 		if branch != nil {
 			name = branch.Name
 			description = branch.Description
-			links = GenerateLinks(&activeRepo.Repo.BaseLinks, branch)
+			links = gitprovider.GenerateLinks(activeRepo.Repo, branch)
 		}
 
 		rootRow := activeRepo.Repo.RootBranch == name

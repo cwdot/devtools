@@ -1,4 +1,4 @@
-package list
+package gitprovider
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"gitter/internal/config"
 )
 
@@ -25,9 +26,9 @@ func Test_sortBranches(t *testing.T) {
 	require.Equal(t, original, refs)
 }
 
-func clone() []*gitBranchMetadata {
-	newRef := func(project string, name string, head bool) *gitBranchMetadata {
-		return &gitBranchMetadata{
+func clone() []*GitBranchMetadata {
+	newRef := func(project string, name string, head bool) *GitBranchMetadata {
+		return &GitBranchMetadata{
 			&config.Branch{Name: name},
 			project,
 			false,
@@ -43,7 +44,7 @@ func clone() []*gitBranchMetadata {
 		}
 	}
 
-	return []*gitBranchMetadata{
+	return []*GitBranchMetadata{
 		newRef("master", "master", false),
 		newRef("bear", "bear", false),
 		newRef("bear", "brown", false),

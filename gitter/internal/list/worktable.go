@@ -4,6 +4,7 @@ import (
 	"os"
 
 	tw "github.com/olekukonko/tablewriter"
+
 	"gitter/internal/config"
 )
 
