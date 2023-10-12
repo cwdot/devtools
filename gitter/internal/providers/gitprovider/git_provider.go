@@ -1,4 +1,4 @@
-package list
+package gitprovider
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 	"github.com/cwdot/go-stdlib/wood"
 )
 
-type gitBranchMetadata struct {
+type GitBranchMetadata struct {
 	Branch          *config.Branch
 	Project         string
 	Archived        bool
@@ -31,7 +31,7 @@ type gitBranchMetadata struct {
 	RemoteDriftDesc string
 }
 
-func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts PrintOpts) ([]*gitBranchMetadata, error) {
+func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts config.PrintOpts) ([]*GitBranchMetadata, error) {
 	iter, err := g.Branches()
 	if err != nil {
 		wood.Fatal(err)
@@ -42,7 +42,7 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts Pr
 		wood.Fatal(err)
 	}
 
-	refs := make([]*gitBranchMetadata, 0, 20)
+	refs := make([]*GitBranchMetadata, 0, 20)
 
 	// child is main branch we're on
 	// parent/root is usually master
@@ -89,7 +89,7 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts Pr
 			}
 		}
 
-		refs = append(refs, &gitBranchMetadata{
+		refs = append(refs, &GitBranchMetadata{
 			Branch:          &ref.Branch,
 			Project:         ref.Project,
 			Archived:        ref.Archived,
@@ -114,7 +114,7 @@ func getGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts Pr
 	return refs, nil
 }
 
-func sortBranches(rootBranchName string, refs []*gitBranchMetadata) {
+func sortBranches(rootBranchName string, refs []*GitBranchMetadata) {
 	sort.Slice(refs, func(i, j int) bool {
 		// handle missing parts
 		if refs[i].Branch == nil && refs[j].Branch == nil {
@@ -141,12 +141,15 @@ func sortBranches(rootBranchName string, refs []*gitBranchMetadata) {
 	})
 }
 
-func GenerateLinks(base *config.BaseLinks, links *config.Branch) string {
+func GenerateLinks(base *config.Repo, links *config.Branch) string {
 	if links.Pr != "" {
-		return createCsvLinks(base.PrBase, links.Pr)
+		return createCsvLinks(base.BaseLinks.PrBase, links.Pr)
 	}
 	if links.Jira != "" {
-		return createCsvLinks(base.JiraBase, links.Jira)
+		if base.Jira == nil {
+			return "config err"
+		}
+		return createCsvLinks(base.Jira.Base, links.Jira)
 	}
 	return ""
 }

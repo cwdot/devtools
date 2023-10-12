@@ -12,16 +12,23 @@ import (
 	tw "github.com/olekukonko/tablewriter"
 
 	"gitter/internal/config"
+	"gitter/internal/providers/gitprovider"
+	"gitter/internal/providers/jiraprovider"
 )
 
-type PrintOpts struct {
-	Layout      []config.Column
-	AllBranches bool
-	NoTrackers  bool
-}
+func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config.PrintOpts) {
+	rows, err := gitprovider.GetGitBranchRows(activeRepo, g, opts)
+	if err != nil {
+		wood.Fatal(err)
+	}
 
-func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts PrintOpts) {
-	rows, err := getGitBranchRows(activeRepo, g, opts)
+	jiras := make([]string, 0, 10)
+	for _, r := range rows {
+		if r.Branch.Jira != "" {
+			jiras = append(jiras, r.Branch.Jira)
+		}
+	}
+	issues, err := jiraprovider.GetIssues(activeRepo.Repo.Jira, jiras...)
 	if err != nil {
 		wood.Fatal(err)
 	}
@@ -30,11 +37,14 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts PrintO
 	for _, row := range rows {
 		branch := row.Branch
 
-		var name, description, links string
+		var name, description, links, jiraStatus string
 		if branch != nil {
 			name = branch.Name
 			description = branch.Description
-			links = GenerateLinks(&activeRepo.Repo.BaseLinks, branch)
+			links = gitprovider.GenerateLinks(activeRepo.Repo, branch)
+			if issue, ok := issues[branch.Jira]; ok {
+				jiraStatus = issue.Fields.Status.Name
+			}
 		}
 
 		rootRow := activeRepo.Repo.RootBranch == name
@@ -74,6 +84,7 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts PrintO
 		output[config.RemoteDrift] = strconv.Itoa(row.RemoteDrift)
 		output[config.RemoteDriftDesc] = row.RemoteDriftDesc
 		output[config.RemoteTracking] = row.RemoteTracking
+		output[config.JiraStatus] = jiraStatus
 		output[config.Links] = links
 
 		colors := colorDataRow(row.Project, rootRow, commitDate, row.RootDrift, row.RemoteDrift)

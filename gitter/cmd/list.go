@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/spf13/cobra"
+
 	"gitter/internal/config"
 	"gitter/internal/list"
 
@@ -47,7 +48,7 @@ var listCmd = &cobra.Command{
 		fmt.Printf("  Repo: %v\n", activeRepo.Repo.Home)
 		fmt.Println()
 
-		opts := list.PrintOpts{
+		opts := config.PrintOpts{
 			Layout:      layout,
 			AllBranches: allBranches,
 			NoTrackers:  noTrackers,
