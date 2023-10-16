@@ -29,7 +29,7 @@ func GetIssues(config *config.JiraConfig, ids ...string) (map[string]jira.Issue,
 		StartAt:       0,
 		MaxResults:    25,
 		Expand:        "",
-		Fields:        []string{"status"},
+		Fields:        []string{"status", "summary"},
 		ValidateQuery: "",
 	})
 	if err != nil {
