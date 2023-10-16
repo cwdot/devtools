@@ -10,9 +10,9 @@ import (
 	"gitter/internal/config"
 )
 
-func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue, error) {
-	m := make(map[string]*jira.Issue)
-	if config == nil || !config.Valid(){
+func GetIssues(config *config.JiraConfig, ids ...string) (map[string]jira.Issue, error) {
+	m := make(map[string]jira.Issue)
+	if config == nil || !config.Valid() {
 		return m, nil
 	}
 
@@ -39,7 +39,7 @@ func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue
 	}
 
 	for _, issue := range issues {
-		m[issue.Key] = &issue
+		m[issue.Key] = issue
 	}
 	return m, nil
 }
