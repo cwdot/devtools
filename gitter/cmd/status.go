@@ -10,12 +10,9 @@ import (
 	"github.com/cwdot/go-stdlib/wood"
 )
 
-var lifecycle string
-
 func init() {
 	rootCmd.AddCommand(statusCmd)
-
-	statusCmd.Flags().StringVarP(&lifecycle, "lifecycle", "l", "status", "Lifecycle to run; default is 'status'")
+	statusCmd.Flags().StringP("lifecycle", "l", "status", "Lifecycle to run; default is 'status'")
 }
 
 var statusCmd = &cobra.Command{
@@ -31,6 +28,11 @@ var statusCmd = &cobra.Command{
 		if activeRepo.Repo.Scripts == nil {
 			wood.Infof("No scripts to run")
 			return
+		}
+
+		lifecycle, err := cmd.Flags().GetString("lifecycle")
+		if err != nil {
+			wood.Fatal(err)
 		}
 
 		ranScript := false

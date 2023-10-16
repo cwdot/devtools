@@ -12,7 +12,7 @@ import (
 
 func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue, error) {
 	m := make(map[string]*jira.Issue)
-	if config == nil {
+	if config == nil || !config.Valid(){
 		return m, nil
 	}
 

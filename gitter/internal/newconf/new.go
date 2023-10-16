@@ -3,7 +3,6 @@ package newconf
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"text/template"
 
 	"github.com/cwdot/go-stdlib/wood"
@@ -11,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"gitter/internal/config"
+	"gitter/internal/jirap"
 )
 
 func Do(g *git.Repository) error {
@@ -22,16 +22,15 @@ func Do(g *git.Repository) error {
 
 	b := `        - name: {{ .Name }}
           description: {{ .Description }}
-          links:
-            pr: {{ .Links.Pr }}
-            jira: {{ .Links.Jira }}
+          pr: {{ .Links.Pr }}
+          jira: {{ .Links.Jira }}
 `
 
 	td := config.Branch{
 		Name:        name,
 		Description: "",
 		Pr:          "",
-		Jira:        findJira(name),
+		Jira:        jirap.Extract("", name),
 	}
 
 	t, err := template.New("branch").Parse(b)
@@ -52,21 +51,4 @@ func Do(g *git.Repository) error {
 	fmt.Println(conf.Location)
 
 	return nil
-}
-
-func findJira(branchName string) string {
-	if branchName == "" {
-		return ""
-	}
-
-	r, err := regexp.Compile("([A-Za-z0-9]+-[0-9]+)")
-	if err != nil {
-		panic(err)
-	}
-
-	matches := r.FindStringSubmatch(branchName)
-	if len(matches) == 2 {
-		return matches[1]
-	}
-	return ""
 }
