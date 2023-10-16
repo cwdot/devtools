@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/cwdot/go-stdlib/color"
 	"github.com/cwdot/go-stdlib/wood"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/spf13/cobra"
+
+	tw "github.com/olekukonko/tablewriter"
 
 	"gitter/internal/config"
 	"gitter/internal/jirap"
@@ -77,15 +78,25 @@ var jiraCmd = &cobra.Command{
 		if len(issues) == 0 {
 			wood.Fatal("No issues found")
 		}
+
+		table := tw.NewWriter(os.Stdout)
+		table.SetHeader([]string{"JIRA", "Branch", "Title", "Status"})
+		table.SetAutoWrapText(false)
+		table.SetAutoFormatHeaders(true)
+		table.SetBorder(false)
 		for _, issue := range issues {
-			p := make([]string, 0, 3)
-			p = append(p, color.Cyan.It(issue.Key))
+			branch := ""
 			if b, ok := branches[issue.Key]; ok {
-				p = append(p, color.Yellow.It(b))
+				branch = b
 			}
-			p = append(p, color.Magenta.It(issue.Fields.Status.Name))
-			fmt.Println(strings.Join(p, "\t"))
+			table.Append([]string{
+				color.Cyan.It(issue.Key),
+				color.Yellow.It(branch),
+				issue.Fields.Summary,
+				color.Magenta.It(issue.Fields.Status.Name),
+			})
 		}
+		table.Render()
 	},
 }
 
