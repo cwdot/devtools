@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 
+	"github.com/andygrunwald/go-jira"
 	"github.com/cwdot/go-stdlib/color"
 	"github.com/cwdot/go-stdlib/wood"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -71,13 +73,23 @@ var jiraCmd = &cobra.Command{
 			keys = processKeys(j, inputReader)
 		}
 
-		issues, err := jiraprovider.GetIssues(j, keys...)
+		issues, err := jiraprovider.GetIssuesSlice(j, keys...)
 		if err != nil {
 			wood.Fatal(err)
 		}
 		if len(issues) == 0 {
 			wood.Fatal("No issues found")
 		}
+
+		slices.SortFunc(issues, func(a, b jira.Issue) int {
+			if a.Fields.Status.Name < b.Fields.Status.Name {
+				return -1
+			}
+			if a.Key < b.Key {
+				return -1
+			}
+			return 0
+		})
 
 		table := tw.NewWriter(os.Stdout)
 		table.SetHeader([]string{"JIRA", "Branch", "Title", "Status"})
