@@ -16,10 +16,15 @@ type Repo struct {
 }
 
 type JiraConfig struct {
-	Base     string `yaml:"base"`
-	Domain   string `yaml:"domain"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	Base       string `yaml:"base"`
+	Domain     string `yaml:"domain"`
+	Username   string `yaml:"username"`
+	Password   string `yaml:"password"`
+	Extraction string `yaml:"extraction"`
+}
+
+func (c JiraConfig) Valid() bool {
+	return c.Username != "" && c.Password != ""
 }
 
 type BaseLinks struct {

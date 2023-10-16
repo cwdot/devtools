@@ -1,8 +1,9 @@
-package newconf
+package jirap
 
 import "testing"
 
-func Test_findJira(t *testing.T) {
+func TestExtract(t *testing.T) {
+	expr := "([A-Za-z0-9]+-[0-9]+)"
 	tests := []struct {
 		name       string
 		branchName string
@@ -18,7 +19,7 @@ func Test_findJira(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := findJira(tt.branchName); got != tt.want {
+			if got := Extract(expr, tt.branchName); got != tt.want {
 				t.Errorf("findJira() = %v, want %v", got, tt.want)
 			}
 		})

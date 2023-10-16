@@ -10,9 +10,21 @@ import (
 	"gitter/internal/config"
 )
 
-func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue, error) {
-	m := make(map[string]*jira.Issue)
-	if config == nil {
+func GetIssuesSlice(config *config.JiraConfig, ids ...string) ([]jira.Issue, error) {
+	m, err := GetIssues(config, ids...)
+	if err != nil {
+		return nil, err
+	}
+	l := make([]jira.Issue, 0, len(m))
+	for _, issue := range m {
+		l = append(l, issue)
+	}
+	return l, nil
+}
+
+func GetIssues(config *config.JiraConfig, ids ...string) (map[string]jira.Issue, error) {
+	m := make(map[string]jira.Issue)
+	if config == nil || !config.Valid() {
 		return m, nil
 	}
 
@@ -27,9 +39,9 @@ func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue
 	jql := fmt.Sprintf("key in (%s)", strings.Join(ids, ","))
 	issues, res, err := jiraClient.Issue.Search(jql, &jira.SearchOptions{
 		StartAt:       0,
-		MaxResults:    25,
+		MaxResults:    50,
 		Expand:        "",
-		Fields:        []string{"status"},
+		Fields:        []string{"status", "summary"},
 		ValidateQuery: "",
 	})
 	if err != nil {
@@ -39,7 +51,7 @@ func GetIssues(config *config.JiraConfig, ids ...string) (map[string]*jira.Issue
 	}
 
 	for _, issue := range issues {
-		m[issue.Key] = &issue
+		m[issue.Key] = issue
 	}
 	return m, nil
 }
