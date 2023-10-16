@@ -27,7 +27,7 @@ func GetIssues(config *config.JiraConfig, ids ...string) (map[string]jira.Issue,
 	jql := fmt.Sprintf("key in (%s)", strings.Join(ids, ","))
 	issues, res, err := jiraClient.Issue.Search(jql, &jira.SearchOptions{
 		StartAt:       0,
-		MaxResults:    25,
+		MaxResults:    50,
 		Expand:        "",
 		Fields:        []string{"status", "summary"},
 		ValidateQuery: "",
