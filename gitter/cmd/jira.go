@@ -18,13 +18,6 @@ import (
 func init() {
 	rootCmd.AddCommand(jiraCmd)
 	jiraCmd.Flags().BoolP("branches", "b", false, "Extract JIRAs from branches")
-	//jiraCmd.Flags().String("lifecycle", "l", "status", "Lifecycle to run; default is 'status'")
-
-	//lifecycle, err := cmd.Flags().GetString("lifecycle")
-	//if err != nil {
-	//	wood.Fatal(err)
-	//}
-
 }
 
 var jiraCmd = &cobra.Command{
@@ -42,6 +35,8 @@ var jiraCmd = &cobra.Command{
 			wood.Fatal("JIRA no configured")
 		}
 
+		branches := make(map[string]string)
+
 		var keys []string
 		fromBranches, err := cmd.Flags().GetBool("branches")
 		if err != nil {
@@ -52,13 +47,13 @@ var jiraCmd = &cobra.Command{
 			if err != nil {
 				wood.Fatal(err)
 			}
-
-			// child is main branch we're on
-			// parent/root is usually master
-			// remote is usually child's remote branch
 			err = iter.ForEach(func(r *plumbing.Reference) error {
 				shortName := r.Name().Short()
-				keys = append(keys, shortName)
+				key := jirap.Extract(j.ExtractionExpr, shortName)
+				if key != "" {
+					keys = append(keys, key)
+					branches[key] = shortName
+				}
 				return nil
 			})
 		} else {
@@ -70,7 +65,7 @@ var jiraCmd = &cobra.Command{
 				}
 				inputReader = file
 			}
-			keys = processInput(j, inputReader)
+			keys = processKeys(j, inputReader)
 		}
 
 		issues, err := jiraprovider.GetIssues(j, keys...)
@@ -81,12 +76,16 @@ var jiraCmd = &cobra.Command{
 			wood.Fatal("No issues found")
 		}
 		for _, issue := range issues {
-			fmt.Println(issue.Key, issue.Fields.Status.Name)
+			if b, ok := branches[issue.Key]; ok {
+				fmt.Println(b, issue.Key, issue.Fields.Status.Name)
+			} else {
+				fmt.Println(issue.Key, issue.Fields.Status.Name)
+			}
 		}
 	},
 }
 
-func processInput(j *config.JiraConfig, f io.Reader) []string {
+func processKeys(j *config.JiraConfig, f io.Reader) []string {
 	keys := make([]string, 0, 10)
 	input := bufio.NewScanner(f)
 	for input.Scan() {
@@ -95,7 +94,9 @@ func processInput(j *config.JiraConfig, f io.Reader) []string {
 			break
 		}
 		key := jirap.Extract(j.ExtractionExpr, txt)
-		keys = append(keys, key)
+		if key != "" {
+			keys = append(keys, key)
+		}
 	}
 	return keys
 }
