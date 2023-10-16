@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
+	"github.com/cwdot/go-stdlib/color"
 	"github.com/cwdot/go-stdlib/wood"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/spf13/cobra"
@@ -76,11 +78,13 @@ var jiraCmd = &cobra.Command{
 			wood.Fatal("No issues found")
 		}
 		for _, issue := range issues {
+			p := make([]string, 0, 3)
+			p = append(p, color.Cyan.It(issue.Key))
 			if b, ok := branches[issue.Key]; ok {
-				fmt.Println(b, issue.Key, issue.Fields.Status.Name)
-			} else {
-				fmt.Println(issue.Key, issue.Fields.Status.Name)
+				p = append(p, color.Yellow.It(b))
 			}
+			p = append(p, color.Magenta.It(issue.Fields.Status.Name))
+			fmt.Println(strings.Join(p, "\t"))
 		}
 	},
 }
