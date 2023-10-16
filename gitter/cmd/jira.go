@@ -82,13 +82,16 @@ var jiraCmd = &cobra.Command{
 		}
 
 		slices.SortFunc(issues, func(a, b jira.Issue) int {
+			if a.Fields.Status.Name == b.Fields.Status.Name {
+				if a.Key < b.Key {
+					return -1
+				}
+				return 0
+			}
 			if a.Fields.Status.Name < b.Fields.Status.Name {
 				return -1
 			}
-			if a.Key < b.Key {
-				return -1
-			}
-			return 0
+			return 1
 		})
 
 		table := tw.NewWriter(os.Stdout)
