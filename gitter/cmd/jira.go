@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"bufio"
-	"fmt"
-	"io"
 	"os"
 	"slices"
 
@@ -11,18 +8,15 @@ import (
 	"github.com/cwdot/go-stdlib/color"
 	"github.com/cwdot/go-stdlib/wood"
 	"github.com/go-git/go-git/v5/plumbing"
+	tw "github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
-	tw "github.com/olekukonko/tablewriter"
-
-	"gitter/internal/config"
 	"gitter/internal/jirap"
 	"gitter/internal/providers/jiraprovider"
 )
 
 func init() {
 	rootCmd.AddCommand(jiraCmd)
-	jiraCmd.Flags().BoolP("branches", "b", false, "Extract JIRAs from branches")
 }
 
 var jiraCmd = &cobra.Command{
@@ -41,13 +35,16 @@ var jiraCmd = &cobra.Command{
 		}
 
 		branches := make(map[string]string)
-
-		var keys []string
-		fromBranches, err := cmd.Flags().GetBool("branches")
-		if err != nil {
-			wood.Fatal(err)
-		}
-		if fromBranches {
+		keys := make([]string, 0, 50)
+		if len(args) > 0 {
+			for _, arg := range args {
+				key := jirap.Extract(j.Extraction, arg)
+				if key != "" {
+					keys = append(keys, key)
+					branches[key] = arg
+				}
+			}
+		} else {
 			iter, err := g.Branches()
 			if err != nil {
 				wood.Fatal(err)
@@ -61,16 +58,9 @@ var jiraCmd = &cobra.Command{
 				}
 				return nil
 			})
-		} else {
-			inputReader := cmd.InOrStdin()
-			if len(args) > 0 && args[0] != "-" {
-				file, err := os.Open(args[0])
-				if err != nil {
-					panic(fmt.Errorf("failed open file: %v", err))
-				}
-				inputReader = file
-			}
-			keys = processKeys(j, inputReader)
+		}
+		if len(keys) == 0 {
+			wood.Fatal("No issues found")
 		}
 
 		issues, err := jiraprovider.GetIssuesSlice(j, keys...)
@@ -78,7 +68,7 @@ var jiraCmd = &cobra.Command{
 			wood.Fatal(err)
 		}
 		if len(issues) == 0 {
-			wood.Fatal("No issues found")
+			wood.Fatalf("JIRA returned 0 issues: %s", keys)
 		}
 
 		slices.SortFunc(issues, func(a, b jira.Issue) int {
@@ -113,20 +103,4 @@ var jiraCmd = &cobra.Command{
 		}
 		table.Render()
 	},
-}
-
-func processKeys(j *config.JiraConfig, f io.Reader) []string {
-	keys := make([]string, 0, 10)
-	input := bufio.NewScanner(f)
-	for input.Scan() {
-		txt := input.Text()
-		if txt == "" {
-			break
-		}
-		key := jirap.Extract(j.Extraction, txt)
-		if key != "" {
-			keys = append(keys, key)
-		}
-	}
-	return keys
 }
