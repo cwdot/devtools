@@ -23,9 +23,9 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 	}
 
 	jiras := make([]string, 0, 10)
-	for _, r := range rows {
-		if r.Branch.Jira != "" {
-			jiras = append(jiras, r.Branch.Jira)
+	for _, row := range rows {
+		if row.BranchConf.Jira != "" {
+			jiras = append(jiras, row.BranchConf.Jira)
 		}
 	}
 	issues, err := jiraprovider.GetIssues(activeRepo.Repo.Jira, jiras...)
@@ -35,19 +35,19 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 
 	bench := createTable(opts.Layout)
 	for _, row := range rows {
-		branch := row.Branch
+		branchName := row.BranchName
 
-		var name, description, links, jiraStatus string
-		if branch != nil {
-			name = branch.Name
-			description = branch.Description
-			links = gitprovider.GenerateLinks(activeRepo.Repo, branch)
-			if issue, ok := issues[branch.Jira]; ok {
+		var description, links, jiraStatus string
+		branchConf := row.BranchConf
+		if branchConf.Name != "" {
+			description = branchConf.Description
+			links = gitprovider.GenerateLinks(activeRepo.Repo, branchConf)
+			if issue, ok := issues[branchConf.Jira]; ok {
 				jiraStatus = issue.Fields.Status.Name
 			}
 		}
 
-		rootRow := activeRepo.Repo.RootBranch == name
+		rootRow := activeRepo.Repo.RootBranch == branchName
 
 		var active string
 		if row.IsHead {
@@ -67,20 +67,19 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 			now := time.Now()
 			relDateS = timediff.Compute(commitDate, now, timediff.EpochRounding())
 		}
-
 		output := make(map[config.ColumnKind]string)
 		output[config.Active] = active
 		output[config.LastHash] = row.Hash
 		output[config.LastHashShort] = row.Hash[0:7]
 		output[config.Project] = row.Project
-		output[config.Name] = name
+		output[config.Name] = branchName
 		output[config.Description] = description
 		output[config.LastCommitted] = strings.TrimSpace(row.LastCommit.Message)
 		output[config.CommittedDate] = commitDateS
 		output[config.RelDate] = relDateS
 		output[config.RootDrift] = strconv.Itoa(row.RootDrift)
-		output[config.RootDriftDesc] = row.RootDriftDesc
-		output[config.RootTracking] = row.RootTracking
+		output[config.MainDriftDesc] = row.RootDriftDesc
+		output[config.MainTracking] = row.RootTracking
 		output[config.RemoteDrift] = strconv.Itoa(row.RemoteDrift)
 		output[config.RemoteDriftDesc] = row.RemoteDriftDesc
 		output[config.RemoteTracking] = row.RemoteTracking
@@ -106,10 +105,10 @@ func colorDataRow(project string, isRoot bool, date time.Time, rootDrift int, re
 	}
 	if rootDrift > 5 {
 		rc.Colors[config.RootDrift] = tw.FgHiYellowColor
-		rc.Colors[config.RootDriftDesc] = tw.FgHiYellowColor
+		rc.Colors[config.MainDriftDesc] = tw.FgHiYellowColor
 	} else if rootDrift < 5 {
 		rc.Colors[config.RootDrift] = tw.FgHiRedColor
-		rc.Colors[config.RootDriftDesc] = tw.FgHiRedColor
+		rc.Colors[config.MainDriftDesc] = tw.FgHiRedColor
 	}
 	if remoteDrift > 5 {
 		rc.Colors[config.RemoteDrift] = tw.FgHiYellowColor

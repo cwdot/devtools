@@ -117,8 +117,7 @@ func computeCandidates(path string) ([]string, error) {
 	candidates := make([]string, 0, 5)
 	for {
 		if path == homeDir || path == "/" {
-			// never home dir
-			break
+			break // never home dir
 		}
 		candidates = append(candidates, path)
 		path = filepath.Dir(path)

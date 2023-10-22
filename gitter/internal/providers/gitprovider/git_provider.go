@@ -17,7 +17,8 @@ import (
 )
 
 type GitBranchMetadata struct {
-	Branch          *config.Branch
+	BranchConf      config.Branch
+	BranchName      string
 	Project         string
 	Archived        bool
 	IsHead          bool
@@ -54,7 +55,10 @@ func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts co
 			return nil
 		}
 
-		branch := ref.Branch
+		var remoteBranch string
+		if ref != nil {
+			remoteBranch = ref.Branch.RemoteBranch
+		}
 
 		lastChildCommit, err := g.CommitObject(r.Hash())
 		if err != nil {
@@ -69,30 +73,28 @@ func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts co
 
 		// If we're too old, then just don't try.
 		if lastTime.Before(cutoff) || printOpts.NoTrackers {
-			rootDriftDesc = "     ~~"
-			remoteDriftDesc = "     ~~"
+			rootDriftDesc = "~~"
+			remoteDriftDesc = "~~"
 		} else {
 			if layout.Repo.RootBranch != "" && layout.Repo.RootBranch != shortName {
 				rootTracking = layout.Repo.RootBranch
-				rootDrift, rootDriftDesc, err = computeDrift(g, layout.Repo.RootBranch, lastChildCommit)
+				rootDrift, rootDriftDesc, err = computeDrift(g, layout.Repo.RootBranch, shortName)
 				if err != nil {
 					wood.Warnf("Failed to find drift for root: %s => %s", shortName, err)
 				}
 			}
 
-			if branch.RemoteBranch != "" {
-				remoteTracking = branch.RemoteBranch
-				remoteDrift, remoteDriftDesc, err = computeDrift(g, branch.RemoteBranch, lastChildCommit)
+			if remoteBranch != "" {
+				remoteTracking = remoteBranch
+				remoteDrift, remoteDriftDesc, err = computeDrift(g, remoteBranch, shortName)
 				if err != nil {
 					wood.Warnf("Failed to find drift for remote: %s => %s", shortName, err)
 				}
 			}
 		}
 
-		refs = append(refs, &GitBranchMetadata{
-			Branch:          &ref.Branch,
-			Project:         ref.Project,
-			Archived:        ref.Archived,
+		bm := &GitBranchMetadata{
+			BranchName:      shortName,
 			LastCommit:      lastChildCommit,
 			RootTracking:    rootTracking,
 			RootDrift:       rootDrift,
@@ -102,7 +104,15 @@ func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts co
 			RemoteDriftDesc: remoteDriftDesc,
 			Hash:            r.Hash().String(),
 			IsHead:          r.Hash() == head.Hash(),
-		})
+		}
+		if ref != nil {
+			if ref.Branch.Name != "" {
+				bm.BranchConf = ref.Branch
+			}
+			bm.Project = ref.Project
+			bm.Archived = ref.Archived
+		}
+		refs = append(refs, bm)
 		return nil
 	})
 	if err != nil {
@@ -116,32 +126,35 @@ func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts co
 
 func sortBranches(rootBranchName string, refs []*GitBranchMetadata) {
 	sort.Slice(refs, func(i, j int) bool {
+		bnI := refs[i].BranchConf.Name
+		bnJ := refs[j].BranchConf.Name
+
 		// handle missing parts
-		if refs[i].Branch == nil && refs[j].Branch == nil {
+		if bnI == "" && bnJ == "" {
 			return refs[i].Hash < refs[j].Hash
-		} else if refs[i].Branch != nil && refs[j].Branch == nil {
+		} else if bnI != "" && bnJ == "" {
 			return true
-		} else if refs[i].Branch == nil && refs[j].Branch != nil {
+		} else if bnI == "" && bnJ != "" {
 			return false
 		}
 
 		// we have all parts; compare in proper sequence
 		switch {
-		case refs[i].Branch.Name == rootBranchName:
+		case bnI == rootBranchName:
 			return true
-		case refs[j].Branch.Name == rootBranchName:
+		case bnJ == rootBranchName:
 			return false
 		case refs[i].Project != refs[j].Project:
 			return refs[i].Project < refs[j].Project
-		case refs[i].Branch.Name != refs[j].Branch.Name:
-			return refs[i].Branch.Name < refs[j].Branch.Name
+		case bnI != bnJ:
+			return bnI < bnJ
 		default:
 			return false
 		}
 	})
 }
 
-func GenerateLinks(base *config.Repo, links *config.Branch) string {
+func GenerateLinks(base *config.Repo, links config.Branch) string {
 	if links.Pr != "" {
 		return createCsvLinks(base.BaseLinks.PrBase, links.Pr)
 	}

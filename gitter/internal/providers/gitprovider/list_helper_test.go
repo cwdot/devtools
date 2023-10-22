@@ -20,7 +20,7 @@ func Test_sortBranches(t *testing.T) {
 	sortBranches("master", refs)
 
 	for idx, b := range refs {
-		fmt.Println(idx, "==>", b.IsHead, " / ", b.Project, " / ", b.Branch)
+		fmt.Println(idx, "==>", b.IsHead, " / ", b.Project, " / ", b.BranchConf)
 	}
 
 	require.Equal(t, original, refs)
@@ -29,18 +29,9 @@ func Test_sortBranches(t *testing.T) {
 func clone() []*GitBranchMetadata {
 	newRef := func(project string, name string, head bool) *GitBranchMetadata {
 		return &GitBranchMetadata{
-			&config.Branch{Name: name},
-			project,
-			false,
-			head,
-			"",
-			nil,
-			"",
-			0,
-			"",
-			"",
-			0,
-			"",
+			BranchConf: config.Branch{Name: name},
+			BranchName: name,
+			Project:    project,
 		}
 	}
 
