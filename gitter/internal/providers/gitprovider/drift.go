@@ -11,11 +11,23 @@ import (
 	"github.com/pkg/errors"
 )
 
-func computeDrift(g *git.Repository, master, feature string) (int, string, error) {
-	wood.Infof("Computing drift between: %s and %s", master, feature)
+func NewDrifter(g *git.Repository) *DriftCalculator {
+	return &DriftCalculator{
+		g:             g,
+		branchCommits: make(map[string][]plumbing.Hash),
+	}
+}
+
+type DriftCalculator struct {
+	g             *git.Repository
+	branchCommits map[string][]plumbing.Hash
+}
+
+func (c *DriftCalculator) computeDrift(master string, feature string) (int, string, error) {
+	wood.Debugf("Computing drift between: %s and %s", master, feature)
 
 	// behind is master; ahead is feature branch
-	behind, ahead, err := calc(g, master, feature)
+	behind, ahead, err := c.calc(master, feature)
 	if err != nil {
 		return 0, "", errors.Wrapf(err, "failed to resolve drift revision: %s and %s", master, feature)
 	}
@@ -33,16 +45,16 @@ func computeDrift(g *git.Repository, master, feature string) (int, string, error
 	return ahead - behind, buf.String(), nil
 }
 
-func calcMergeBase(g *git.Repository, masterBranch *plumbing.Reference, featureBranch *plumbing.Reference) (plumbing.Hash, error) {
+func (c *DriftCalculator) calcMergeBase(masterBranch *plumbing.Reference, featureBranch *plumbing.Reference) (plumbing.Hash, error) {
 	mHash := masterBranch.Hash()
 	fHash := featureBranch.Hash()
 
-	masterCommit, err := g.CommitObject(mHash)
+	masterCommit, err := c.g.CommitObject(mHash)
 	if err != nil {
 		return plumbing.ZeroHash, errors.Wrapf(err, "failed to find master commit: %s", mHash)
 	}
 
-	featureCommit, err := g.CommitObject(fHash)
+	featureCommit, err := c.g.CommitObject(fHash)
 	if err != nil {
 		return plumbing.ZeroHash, errors.Wrapf(err, "failed to find feature commit: %s", fHash)
 	}
@@ -59,28 +71,28 @@ func calcMergeBase(g *git.Repository, masterBranch *plumbing.Reference, featureB
 	return plumbing.ZeroHash, errors.Errorf("unexpected number of commits: %d", len(commits))
 }
 
-func calc(g *git.Repository, master, feature string) (int, int, error) {
-	masterBranch, err := g.Reference(plumbing.NewBranchReferenceName(master), true) //"refs/heads/master"
+func (c *DriftCalculator) calc(master string, feature string) (int, int, error) {
+	masterBranch, err := c.g.Reference(plumbing.NewBranchReferenceName(master), true)
 	if err != nil {
 		return 0, 0, errors.Wrapf(err, "failed to find master branch: %s", master)
 	}
 
-	featureBranch, err := g.Reference(plumbing.NewBranchReferenceName(feature), true) //"refs/heads/feature"
+	featureBranch, err := c.g.Reference(plumbing.NewBranchReferenceName(feature), true)
 	if err != nil {
 		return 0, 0, errors.Wrapf(err, "failed to find feature branch: %s", feature)
 	}
 
-	baseCommit, err := calcMergeBase(g, masterBranch, featureBranch)
+	baseCommit, err := c.calcMergeBase(masterBranch, featureBranch)
 	if err != nil {
 		return 0, 0, errors.Wrapf(err, "failed to find merge base: %s", baseCommit)
 	}
 
-	masterCommits, err := getBranchCommits(g, master)
+	masterCommits, err := c.getBranchCache(master)
 	if err != nil {
 		return 0, 0, errors.Wrapf(err, "failed to find commits ahead: %s", master)
 	}
 
-	featureCommits, err := getBranchCommits(g, feature)
+	featureCommits, err := c.getBranchCache(feature)
 	if err != nil {
 		return 0, 0, errors.Wrapf(err, "failed to find commits ahead: %s", feature)
 	}
@@ -89,14 +101,14 @@ func calc(g *git.Repository, master, feature string) (int, int, error) {
 	featureCommitsAheadCount := 0
 
 	for _, commit := range masterCommits {
-		if commit.Hash == baseCommit {
+		if commit == baseCommit {
 			break
 		}
 		masterCommitsAheadCount++
 	}
 
 	for _, commit := range featureCommits {
-		if commit.Hash == baseCommit {
+		if commit == baseCommit {
 			break
 		}
 		featureCommitsAheadCount++
@@ -105,7 +117,21 @@ func calc(g *git.Repository, master, feature string) (int, int, error) {
 	return masterCommitsAheadCount, featureCommitsAheadCount, nil
 }
 
-func getBranchCommits(g *git.Repository, branchName string) ([]*object.Commit, error) {
+func (c *DriftCalculator) getBranchCache(branch string) ([]plumbing.Hash, error) {
+	if cache, ok := c.branchCommits[branch]; ok {
+		return cache, nil
+	}
+
+	commits, err := getBranchCommits(c.g, branch)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to find commits ahead: %s", branch)
+	}
+	c.branchCommits[branch] = commits
+
+	return commits, nil
+}
+
+func getBranchCommits(g *git.Repository, branchName string) ([]plumbing.Hash, error) {
 	refName := plumbing.NewBranchReferenceName(branchName)
 
 	// Resolve the reference to a commit
@@ -123,9 +149,9 @@ func getBranchCommits(g *git.Repository, branchName string) ([]*object.Commit, e
 	// Iterate through and list the commits in the branch
 
 	history := object.NewCommitPreorderIter(commitObj, nil, nil)
-	commits := make([]*object.Commit, 0, 100)
+	commits := make([]plumbing.Hash, 0, 100)
 	err = history.ForEach(func(hc *object.Commit) error {
-		commits = append(commits, hc)
+		commits = append(commits, hc.Hash)
 		return nil
 	})
 	return commits, nil

@@ -21,7 +21,8 @@ func TestDrift(t *testing.T) {
 		err = play.Checkout("feature", true)
 		require.NoError(t, err)
 
-		a, b, err := calc(play.R, "master", "feature")
+		drifter := NewDrifter(play.R)
+		a, b, err := drifter.calc("master", "feature")
 		require.NoError(t, err)
 		assert.Equal(t, 0, a)
 		assert.Equal(t, 0, b)
@@ -39,7 +40,8 @@ func TestDrift(t *testing.T) {
 		err = play.AddTestFile("feature-1")
 		require.NoError(t, err)
 
-		a, b, err := calc(play.R, "master", "feature")
+		drifter := NewDrifter(play.R)
+		a, b, err := drifter.calc("master", "feature")
 		require.NoError(t, err)
 		assert.Equal(t, 0, a)
 		assert.Equal(t, 1, b)
@@ -60,7 +62,8 @@ func TestDrift(t *testing.T) {
 		err = play.AddTestFile("master-1")
 		require.NoError(t, err)
 
-		a, b, err := calc(play.R, "master", "feature")
+		drifter := NewDrifter(play.R)
+		a, b, err := drifter.calc("master", "feature")
 		require.NoError(t, err)
 		assert.Equal(t, 1, a)
 		assert.Equal(t, 0, b)
@@ -83,7 +86,8 @@ func TestDrift(t *testing.T) {
 		err = play.AddTestFile("master-1")
 		require.NoError(t, err)
 
-		a, b, err := calc(play.R, "master", "feature")
+		drifter := NewDrifter(play.R)
+		a, b, err := drifter.calc("master", "feature")
 		require.NoError(t, err)
 		assert.Equal(t, 1, a)
 		assert.Equal(t, 1, b)

@@ -45,6 +45,8 @@ func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts co
 
 	refs := make([]*GitBranchMetadata, 0, 20)
 
+	drifter := NewDrifter(g)
+
 	// child is main branch we're on
 	// parent/root is usually master
 	// remote is usually child's remote branch
@@ -78,17 +80,17 @@ func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts co
 		} else {
 			if layout.Repo.RootBranch != "" && layout.Repo.RootBranch != shortName {
 				rootTracking = layout.Repo.RootBranch
-				rootDrift, rootDriftDesc, err = computeDrift(g, layout.Repo.RootBranch, shortName)
+				rootDrift, rootDriftDesc, err = drifter.computeDrift(layout.Repo.RootBranch, shortName)
 				if err != nil {
-					wood.Warnf("Failed to find drift for root: %s => %s", shortName, err)
+					wood.Debugf("Failed to find drift for root: %s => %s", shortName, err)
 				}
 			}
 
 			if remoteBranch != "" {
 				remoteTracking = remoteBranch
-				remoteDrift, remoteDriftDesc, err = computeDrift(g, remoteBranch, shortName)
+				remoteDrift, remoteDriftDesc, err = drifter.computeDrift(remoteBranch, shortName)
 				if err != nil {
-					wood.Warnf("Failed to find drift for remote: %s => %s", shortName, err)
+					wood.Debugf("Failed to find drift for remote: %s => %s", shortName, err)
 				}
 			}
 		}
