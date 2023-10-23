@@ -12,26 +12,16 @@ import (
 	tw "github.com/olekukonko/tablewriter"
 
 	"gitter/internal/config"
-	"gitter/internal/jirap"
 	"gitter/internal/providers/gitprovider"
-	"gitter/internal/providers/jiraprovider"
 )
 
-func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config.PrintOpts) {
+func Print(activeRepo *config.ActiveRepo, g *git.Repository, opts config.PrintOpts) {
 	rows, err := gitprovider.GetGitBranchRows(activeRepo, g, opts)
 	if err != nil {
 		wood.Fatal(err)
 	}
 
-	jiras := make([]string, 0, 10)
-	for _, row := range rows {
-		if row.BranchConf.Jira != "" {
-			jiras = append(jiras, row.BranchConf.Jira)
-		} else if key := jirap.SafeExtract(activeRepo.Repo.Jira, row.BranchName); key != "" {
-			jiras = append(jiras, key)
-		}
-	}
-	issues, err := jiraprovider.GetIssues(activeRepo.Repo.Jira, jiras...)
+	jiras, err := getBranchJiras(activeRepo.Repo.Jira, rows)
 	if err != nil {
 		wood.Fatal(err)
 	}
@@ -45,8 +35,8 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 		if branchConf.Name != "" {
 			description = branchConf.Description
 			links = gitprovider.GenerateLinks(activeRepo.Repo, branchConf)
-			if issue, ok := issues[branchConf.Jira]; ok {
-				jiraStatus = issue.Fields.Status.Name
+			if status, ok := jiras[branchConf.Jira]; ok {
+				jiraStatus = status
 			}
 		}
 

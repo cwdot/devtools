@@ -53,6 +53,6 @@ var listCmd = &cobra.Command{
 			AllBranches: allBranches,
 			NoTrackers:  noTrackers,
 		}
-		list.PrintBranches(activeRepo, g, opts)
+		list.Print(activeRepo, g, opts)
 	},
 }
