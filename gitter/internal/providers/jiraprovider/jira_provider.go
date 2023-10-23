@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/andygrunwald/go-jira"
+	"github.com/cwdot/go-stdlib/wood"
+	"github.com/deckarep/golang-set/v2"
 	"github.com/pkg/errors"
 
 	"gitter/internal/config"
@@ -36,10 +38,15 @@ func GetIssues(config *config.JiraConfig, ids ...string) (map[string]jira.Issue,
 	if err != nil {
 		return nil, errors.Wrapf(err, "error creating client")
 	}
-	jql := fmt.Sprintf("key in (%s)", strings.Join(ids, ","))
+
+	keys := mapset.NewSet(ids...).ToSlice()
+	keyStr := strings.Join(keys, ",")
+	wood.Debugf("JIRAs to query: %s", keyStr)
+
+	jql := fmt.Sprintf("key in (%s)", keyStr)
 	issues, res, err := jiraClient.Issue.Search(jql, &jira.SearchOptions{
 		StartAt:       0,
-		MaxResults:    50,
+		MaxResults:    len(keys),
 		Expand:        "",
 		Fields:        []string{"status", "summary"},
 		ValidateQuery: "",
