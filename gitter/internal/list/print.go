@@ -12,6 +12,7 @@ import (
 	tw "github.com/olekukonko/tablewriter"
 
 	"gitter/internal/config"
+	"gitter/internal/jirap"
 	"gitter/internal/providers/gitprovider"
 	"gitter/internal/providers/jiraprovider"
 )
@@ -26,6 +27,8 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 	for _, row := range rows {
 		if row.BranchConf.Jira != "" {
 			jiras = append(jiras, row.BranchConf.Jira)
+		} else if key := jirap.SafeExtract(activeRepo.Repo.Jira, row.BranchName); key != "" {
+			jiras = append(jiras, key)
 		}
 	}
 	issues, err := jiraprovider.GetIssues(activeRepo.Repo.Jira, jiras...)
