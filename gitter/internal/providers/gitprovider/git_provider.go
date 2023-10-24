@@ -78,9 +78,10 @@ func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts co
 			rootDriftDesc = "~~"
 			remoteDriftDesc = "~~"
 		} else {
+			maxDrift := 1500
 			if layout.Repo.RootBranch != "" && layout.Repo.RootBranch != shortName {
 				rootTracking = layout.Repo.RootBranch
-				rootDrift, rootDriftDesc, err = drifter.computeDrift(layout.Repo.RootBranch, shortName)
+				rootDrift, rootDriftDesc, err = drifter.Compute(layout.Repo.RootBranch, shortName, maxDrift)
 				if err != nil {
 					wood.Debugf("Failed to find drift for root: %s => %s", shortName, err)
 				}
@@ -88,7 +89,7 @@ func GetGitBranchRows(layout *config.ActiveRepo, g *git.Repository, printOpts co
 
 			if remoteBranch != "" {
 				remoteTracking = remoteBranch
-				remoteDrift, remoteDriftDesc, err = drifter.computeDrift(remoteBranch, shortName)
+				remoteDrift, remoteDriftDesc, err = drifter.Compute(remoteBranch, shortName, maxDrift)
 				if err != nil {
 					wood.Debugf("Failed to find drift for remote: %s => %s", shortName, err)
 				}

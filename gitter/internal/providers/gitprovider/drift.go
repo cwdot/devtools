@@ -23,29 +23,85 @@ type DriftCalculator struct {
 	branchCommits map[string][]plumbing.Hash
 }
 
-func (c *DriftCalculator) computeDrift(master string, feature string) (int, string, error) {
+func (c *DriftCalculator) Compute(master string, feature string, maxDrift int) (int, string, error) {
 	wood.Debugf("Computing drift between: %s and %s", master, feature)
 
+	baseCommit, err := c.calcMergeBase(master, feature)
+	if err != nil {
+		return 0, "", errors.Wrapf(err, "failed to find merge base: %s", baseCommit)
+	}
+
+	masterCommits, err := c.getBranchCache(master)
+	if err != nil {
+		return 0, "", errors.Wrapf(err, "failed to find commits ahead: %s", master)
+	}
+
+	featureCommits, err := c.getBranchCache(feature)
+	if err != nil {
+		return 0, "", errors.Wrapf(err, "failed to find commits ahead: %s", feature)
+	}
+
+	var behind, ahead int
+	var maxBehind, maxAhead bool
+
+	for _, commit := range masterCommits {
+		if commit == baseCommit {
+			break
+		}
+		if behind >= maxDrift {
+			maxBehind = true
+			break
+		}
+		behind++
+	}
+
+	for _, commit := range featureCommits {
+		if commit == baseCommit {
+			break
+		}
+		if ahead >= maxDrift {
+			maxAhead = true
+			break
+		}
+		ahead++
+	}
+
 	// behind is master; ahead is feature branch
-	behind, ahead, err := c.calc(master, feature)
 	if err != nil {
 		return 0, "", errors.Wrapf(err, "failed to resolve drift revision: %s and %s", master, feature)
 	}
 	var buf strings.Builder
 
-	if ahead > 0 {
+	if maxAhead {
+		buf.WriteString("∞ ahead")
+	} else if ahead > 0 {
 		buf.WriteString(fmt.Sprintf("%d ahead", ahead))
 	}
-	if behind > 0 {
+
+	if maxBehind || behind > 0 {
 		if buf.Len() > 0 {
 			buf.WriteString(", ")
 		}
-		buf.WriteString(fmt.Sprintf("%d behind", behind))
+		if maxBehind {
+			buf.WriteString("∞ behind")
+		} else {
+			buf.WriteString(fmt.Sprintf("%d behind", behind))
+		}
 	}
 	return ahead - behind, buf.String(), nil
 }
 
-func (c *DriftCalculator) calcMergeBase(masterBranch *plumbing.Reference, featureBranch *plumbing.Reference) (plumbing.Hash, error) {
+func (c *DriftCalculator) calcMergeBase(master string, feature string) (plumbing.Hash, error) {
+	masterBranch, err := c.g.Reference(plumbing.NewBranchReferenceName(master), true)
+	if err != nil {
+		return plumbing.ZeroHash, errors.Wrapf(err, "failed to find master branch: %s", master)
+	}
+
+	featureBranch, err := c.g.Reference(plumbing.NewBranchReferenceName(feature), true)
+	if err != nil {
+		return plumbing.ZeroHash, errors.Wrapf(err, "failed to find feature branch: %s", feature)
+	}
+
 	mHash := masterBranch.Hash()
 	fHash := featureBranch.Hash()
 
@@ -69,52 +125,6 @@ func (c *DriftCalculator) calcMergeBase(masterBranch *plumbing.Reference, featur
 		return commits[0].Hash, nil
 	}
 	return plumbing.ZeroHash, errors.Errorf("unexpected number of commits: %d", len(commits))
-}
-
-func (c *DriftCalculator) calc(master string, feature string) (int, int, error) {
-	masterBranch, err := c.g.Reference(plumbing.NewBranchReferenceName(master), true)
-	if err != nil {
-		return 0, 0, errors.Wrapf(err, "failed to find master branch: %s", master)
-	}
-
-	featureBranch, err := c.g.Reference(plumbing.NewBranchReferenceName(feature), true)
-	if err != nil {
-		return 0, 0, errors.Wrapf(err, "failed to find feature branch: %s", feature)
-	}
-
-	baseCommit, err := c.calcMergeBase(masterBranch, featureBranch)
-	if err != nil {
-		return 0, 0, errors.Wrapf(err, "failed to find merge base: %s", baseCommit)
-	}
-
-	masterCommits, err := c.getBranchCache(master)
-	if err != nil {
-		return 0, 0, errors.Wrapf(err, "failed to find commits ahead: %s", master)
-	}
-
-	featureCommits, err := c.getBranchCache(feature)
-	if err != nil {
-		return 0, 0, errors.Wrapf(err, "failed to find commits ahead: %s", feature)
-	}
-
-	masterCommitsAheadCount := 0
-	featureCommitsAheadCount := 0
-
-	for _, commit := range masterCommits {
-		if commit == baseCommit {
-			break
-		}
-		masterCommitsAheadCount++
-	}
-
-	for _, commit := range featureCommits {
-		if commit == baseCommit {
-			break
-		}
-		featureCommitsAheadCount++
-	}
-
-	return masterCommitsAheadCount, featureCommitsAheadCount, nil
 }
 
 func (c *DriftCalculator) getBranchCache(branch string) ([]plumbing.Hash, error) {
