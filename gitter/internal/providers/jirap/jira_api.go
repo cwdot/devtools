@@ -12,18 +12,6 @@ import (
 	"gitter/internal/config"
 )
 
-func GetIssuesSlice(config *config.JiraConfig, ids ...string) ([]jira.Issue, error) {
-	m, err := GetIssues(config, ids...)
-	if err != nil {
-		return nil, err
-	}
-	l := make([]jira.Issue, 0, len(m))
-	for _, issue := range m {
-		l = append(l, issue)
-	}
-	return l, nil
-}
-
 func GetIssues(config *config.JiraConfig, ids ...string) (map[string]jira.Issue, error) {
 	m := make(map[string]jira.Issue)
 	if config == nil || !config.Valid() {
