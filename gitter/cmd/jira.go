@@ -13,6 +13,7 @@ import (
 
 func init() {
 	rootCmd.AddCommand(jiraCmd)
+	jiraCmd.Flags().BoolP("all", "a", false, "Show all git branches")
 }
 
 var jiraCmd = &cobra.Command{
@@ -30,6 +31,8 @@ var jiraCmd = &cobra.Command{
 			wood.Fatal("JIRA no configured")
 		}
 
+		all := mustRet(cmd.Flags().GetBool("all"))
+
 		rows := jirap.Build(g, j)
 
 		table := tw.NewWriter(os.Stdout)
@@ -38,6 +41,10 @@ var jiraCmd = &cobra.Command{
 		table.SetAutoFormatHeaders(true)
 		table.SetBorder(false)
 		for _, row := range rows {
+			// filter out branches without JIRAs
+			if row.Key == "" && !all {
+				continue
+			}
 			table.Append([]string{
 				color.Yellow.It(row.Branch),
 				color.Cyan.It(row.Key),
