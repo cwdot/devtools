@@ -1,9 +1,7 @@
 package gitp
 
 import (
-	"fmt"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/go-git/go-git/v5"
@@ -12,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"gitter/internal/config"
+	"gitter/internal/util"
 
 	"github.com/cwdot/go-stdlib/wood"
 )
@@ -156,22 +155,13 @@ func sortBranches(rootBranchName string, refs []*GitBranchMetadata) {
 
 func GenerateLinks(base *config.Repo, links config.Branch) string {
 	if links.Pr != "" {
-		return createCsvLinks(base.BaseLinks.PrBase, links.Pr)
+		return util.CreateCsvLinks(base.BaseLinks.PrBase, links.Pr)
 	}
 	if links.Jira != "" {
 		if base.Jira == nil {
 			return "config err"
 		}
-		return createCsvLinks(base.Jira.Base, links.Jira)
+		return util.CreateCsvLinks(base.Jira.Base, links.Jira)
 	}
 	return ""
-}
-
-func createCsvLinks(base string, csvLinks string) string {
-	newLinks := make([]string, 0, 5)
-	items := strings.Split(csvLinks, ",")
-	for _, item := range items {
-		newLinks = append(newLinks, fmt.Sprintf("%s/%s", base, item))
-	}
-	return strings.Join(newLinks, " ")
 }
