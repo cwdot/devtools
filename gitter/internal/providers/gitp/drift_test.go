@@ -1,4 +1,4 @@
-package gitprovider
+package gitp
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"gitter/internal/providers/gitprovider/testpg"
+	"gitter/internal/providers/gitp/testpg"
 )
 
 func TestDrift(t *testing.T) {

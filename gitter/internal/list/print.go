@@ -12,13 +12,12 @@ import (
 	tw "github.com/olekukonko/tablewriter"
 
 	"gitter/internal/config"
-	"gitter/internal/jirap"
-	"gitter/internal/providers/gitprovider"
-	"gitter/internal/providers/jiraprovider"
+	"gitter/internal/providers/gitp"
+	"gitter/internal/providers/jirap"
 )
 
 func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config.PrintOpts) {
-	rows, err := gitprovider.GetGitBranchRows(activeRepo, g, opts)
+	rows, err := gitp.GetGitBranchRows(activeRepo, g, opts)
 	if err != nil {
 		wood.Fatal(err)
 	}
@@ -31,7 +30,7 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 			jiras = append(jiras, key)
 		}
 	}
-	issues, err := jiraprovider.GetIssues(activeRepo.Repo.Jira, jiras...)
+	issues, err := jirap.GetIssues(activeRepo.Repo.Jira, jiras...)
 	if err != nil {
 		wood.Fatal(err)
 	}
@@ -44,7 +43,7 @@ func PrintBranches(activeRepo *config.ActiveRepo, g *git.Repository, opts config
 		branchConf := row.BranchConf
 		if branchConf.Name != "" {
 			description = branchConf.Description
-			links = gitprovider.GenerateLinks(activeRepo.Repo, branchConf)
+			links = gitp.GenerateLinks(activeRepo.Repo, branchConf)
 			if issue, ok := issues[branchConf.Jira]; ok {
 				jiraStatus = issue.Fields.Status.Name
 			}

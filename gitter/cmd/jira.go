@@ -12,7 +12,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"gitter/internal/jirap"
-	"gitter/internal/providers/jiraprovider"
+
+	"gitter/internal/providers/jirap"
 )
 
 func init() {
@@ -63,7 +64,7 @@ var jiraCmd = &cobra.Command{
 			wood.Fatal("No issues found")
 		}
 
-		issues, err := jiraprovider.GetIssuesSlice(j, keys...)
+		issues, err := jirap.GetIssuesSlice(j, keys...)
 		if err != nil {
 			wood.Fatal(err)
 		}

@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"gitter/internal/config"
-	"gitter/internal/jirap"
+	"gitter/internal/providers/jirap"
 )
 
 func Do(g *git.Repository) error {

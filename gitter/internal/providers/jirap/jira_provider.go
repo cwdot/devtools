@@ -1,4 +1,4 @@
-package jiraprovider
+package jirap
 
 import (
 	"fmt"
