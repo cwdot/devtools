@@ -8,6 +8,7 @@ import (
 	tw "github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
+	"gitter/internal/datatable"
 	"gitter/internal/providers/jirap"
 )
 
@@ -34,6 +35,11 @@ var jiraCmd = &cobra.Command{
 		all := mustRet(cmd.Flags().GetBool("all"))
 
 		rows := jirap.Build(g, j)
+		statusM := datatable.NewMarker()
+		statusM.Set("Backlog", color.Cyan)
+		statusM.Set("Development", color.Yellow)
+		statusM.Set("InReview", color.Cyan)
+		statusM.Set("Done", color.Green)
 
 		table := tw.NewWriter(os.Stdout)
 		table.SetHeader([]string{"Branch", "JIRA", "Title", "Status", "Link"})
@@ -49,7 +55,7 @@ var jiraCmd = &cobra.Command{
 				color.Yellow.It(row.Branch),
 				color.Cyan.It(row.Key),
 				row.Title,
-				color.Magenta.It(row.Status),
+				statusM.Mark(row.Status),
 				row.Link,
 			})
 		}
