@@ -33,14 +33,14 @@ var jiraCmd = &cobra.Command{
 		rows := jirap.Build(g, j)
 
 		table := tw.NewWriter(os.Stdout)
-		table.SetHeader([]string{"JIRA", "Branch", "Title", "Status"})
+		table.SetHeader([]string{"Branch", "JIRA", "Title", "Status", "Link"})
 		table.SetAutoWrapText(false)
 		table.SetAutoFormatHeaders(true)
 		table.SetBorder(false)
 		for _, row := range rows {
 			table.Append([]string{
-				color.Cyan.It(row.Key),
 				color.Yellow.It(row.Branch),
+				color.Cyan.It(row.Key),
 				row.Title,
 				color.Magenta.It(row.Status),
 				row.Link,

@@ -12,8 +12,8 @@ import (
 )
 
 type Row struct {
-	Key    string
 	Branch string
+	Key    string
 	Title  string
 	Status string
 	Link   string
@@ -31,9 +31,9 @@ func Build(g *git.Repository, j *config.JiraConfig) []*Row {
 		key := Extract(j.Extraction, shortName)
 		if key != "" {
 			keys = append(keys, key)
-			branches[key] = shortName
+			branches[shortName] = key
 		} else {
-			branches[key] = ""
+			branches[shortName] = ""
 		}
 		return nil
 	})
@@ -58,8 +58,8 @@ func Build(g *git.Repository, j *config.JiraConfig) []*Row {
 			link = util.CreateCsvLinks(j.Base, key)
 		}
 		rows = append(rows, &Row{
-			Key:    key,
 			Branch: branch,
+			Key:    key,
 			Title:  title,
 			Status: status,
 			Link:   link,
