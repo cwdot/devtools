@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/cwdot/stdlib-go/wood"
@@ -51,14 +52,31 @@ var parseCmd = &cobra.Command{
 func collate(testTargets []*bazel.BazelTarget, requestedTargets []*bazel.BazelTarget) {
 	m := make(map[string]*bazel.BazelTarget)
 	for _, target := range testTargets {
+		if !strings.Contains(target.Target, "_test") {
+			continue
+		}
 		m[target.Package] = target
 	}
 
 	// do we have matching test target?
+	intersectingTargets := mapset.NewSet[*bazel.BazelTarget]()
 	for _, target := range requestedTargets {
 		if testTarget, ok := m[target.Package]; ok {
-			eprint(testTarget.Package + ":" + testTarget.Target)
+			intersectingTargets.Add(testTarget)
 		}
+	}
+
+	// print unique targets
+	uniqueTargets := intersectingTargets.ToSlice()
+	slices.SortFunc(uniqueTargets, func(i *bazel.BazelTarget, j *bazel.BazelTarget) int {
+		d := strings.Compare(i.Package, j.Package)
+		if d != 0 {
+			return d
+		}
+		return strings.Compare(i.Target, j.Target)
+	})
+	for _, target := range uniqueTargets {
+		eprint(target.Package + ":" + target.Target)
 	}
 }
 

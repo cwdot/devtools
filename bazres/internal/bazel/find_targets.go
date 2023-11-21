@@ -33,7 +33,7 @@ type BazelTarget struct {
 }
 
 func Query(query string) ([]*BazelTarget, error) {
-	lines := make([]*BazelTarget, 0, 10)
+	targets := make([]*BazelTarget, 0, 10)
 
 	// Run Bazel query command
 	cmd := exec.Command("bazel", "query", query)
@@ -53,7 +53,7 @@ func Query(query string) ([]*BazelTarget, error) {
 			return nil, err
 		}
 
-		lines = append(lines, bt)
+		targets = append(targets, bt)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -61,5 +61,5 @@ func Query(query string) ([]*BazelTarget, error) {
 		return nil, err
 	}
 
-	return lines, nil
+	return targets, nil
 }
