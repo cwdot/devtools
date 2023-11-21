@@ -87,7 +87,7 @@ func collate(testTargets []*bazel.BazelTarget, requestedTargets []*bazel.BazelTa
 		return strings.Compare(i.Target, j.Target)
 	})
 	for _, target := range uniqueTargets {
-		eprint(target.String())
+		fmt.Println(target.String())
 	}
 }
 
@@ -161,8 +161,4 @@ func hasTestTarget(p string) (bool, error) {
 	}
 
 	return false, nil
-}
-
-func eprint(args ...interface{}) {
-	fmt.Fprintln(os.Stderr, args...)
 }
