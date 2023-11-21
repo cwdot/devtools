@@ -32,6 +32,13 @@ type BazelTarget struct {
 	File    string
 }
 
+func (t BazelTarget) String() string {
+	if t.File != "" {
+		return fmt.Sprintf("%s:%s", t.Package, t.File)
+	}
+	return fmt.Sprintf("%s:%s", t.Package, t.Target)
+}
+
 func Query(query string) ([]*BazelTarget, error) {
 	targets := make([]*BazelTarget, 0, 10)
 

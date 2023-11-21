@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/cwdot/stdlib-go/color"
 	"github.com/cwdot/stdlib-go/wood"
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/spf13/cobra"
@@ -55,7 +56,11 @@ func collate(testTargets []*bazel.BazelTarget, requestedTargets []*bazel.BazelTa
 		if !strings.Contains(target.Target, "_test") {
 			continue
 		}
+		wood.Debugf("Adding test target: %s", color.Cyan.It(target.Target))
 		m[target.Package] = target
+	}
+	if len(m) == 0 {
+		wood.Warnf("No test targets found")
 	}
 
 	// do we have matching test target?
