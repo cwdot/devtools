@@ -35,3 +35,6 @@ install 1px
 install hass
 
 install gitter
+
+install bazres
+
