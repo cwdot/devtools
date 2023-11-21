@@ -61,7 +61,7 @@ func collate(testTargets []*bazel.BazelTarget, requestedTargets []*bazel.BazelTa
 		if !strings.Contains(target.Target, "_test") {
 			continue
 		}
-		wood.Tracef("Adding test target: %s => %s", color.Yellow.It(target.Target), color.Cyan.It(target))
+		wood.Tracef("Adding test target: %s => %s", color.Yellow.It(target.Package), color.Cyan.It(target))
 		m[target.Package] = target
 	}
 	if len(m) == 0 {
@@ -73,7 +73,7 @@ func collate(testTargets []*bazel.BazelTarget, requestedTargets []*bazel.BazelTa
 	for _, target := range requestedTargets {
 		if testTarget, ok := m[target.Package]; ok {
 			intersectingTargets.Add(testTarget)
-			wood.Debugf("Found matching test target: %s => %s", color.Yellow.It(target.Target), color.Cyan.It(testTarget))
+			wood.Debugf("Found matching test target: %s => %s", color.Yellow.It(target.Package), color.Cyan.It(testTarget))
 		}
 	}
 
