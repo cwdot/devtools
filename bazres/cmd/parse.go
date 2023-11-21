@@ -51,12 +51,17 @@ var parseCmd = &cobra.Command{
 }
 
 func collate(testTargets []*bazel.BazelTarget, requestedTargets []*bazel.BazelTarget) {
+	if len(requestedTargets) == 0 {
+		wood.Errorf("No requested targets")
+		return
+	}
+
 	m := make(map[string]*bazel.BazelTarget)
 	for _, target := range testTargets {
 		if !strings.Contains(target.Target, "_test") {
 			continue
 		}
-		wood.Debugf("Adding test target: %s", color.Cyan.It(target.Target))
+		wood.Tracef("Adding test target: %s => %s", color.Yellow.It(target.Target), color.Cyan.It(target))
 		m[target.Package] = target
 	}
 	if len(m) == 0 {
@@ -68,6 +73,7 @@ func collate(testTargets []*bazel.BazelTarget, requestedTargets []*bazel.BazelTa
 	for _, target := range requestedTargets {
 		if testTarget, ok := m[target.Package]; ok {
 			intersectingTargets.Add(testTarget)
+			wood.Debugf("Found matching test target: %s => %s", color.Yellow.It(target.Target), color.Cyan.It(testTarget))
 		}
 	}
 
@@ -81,7 +87,7 @@ func collate(testTargets []*bazel.BazelTarget, requestedTargets []*bazel.BazelTa
 		return strings.Compare(i.Target, j.Target)
 	})
 	for _, target := range uniqueTargets {
-		eprint(target.Package + ":" + target.Target)
+		eprint(target.String())
 	}
 }
 
@@ -118,7 +124,7 @@ func processLines(args ...string) ([]*bazel.BazelTarget, error) {
 		case bt.Target != "":
 			targets.Add(bt)
 		case bt.File != "":
-			wood.Debugf("no cannot read bt file: %s", bt.File)
+			targets.Add(bt)
 		default:
 			wood.Debugf("no target or file found for: %s", arg)
 		}
