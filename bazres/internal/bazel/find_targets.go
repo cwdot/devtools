@@ -23,6 +23,7 @@ func Parse(value string) (*BazelTarget, error) {
 			return nil, fmt.Errorf("invalid format: %s", value)
 		}
 
+		pkg = tokens[0]
 		if strings.HasSuffix(tokens[1], ".go") {
 			file = tokens[1]
 		} else {

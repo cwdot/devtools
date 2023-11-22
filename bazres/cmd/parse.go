@@ -142,6 +142,7 @@ func getBazelFile(p string) string {
 	return ""
 
 }
+
 func hasTestTarget(p string) (bool, error) {
 	f, err := os.Open(p)
 	if err != nil {
