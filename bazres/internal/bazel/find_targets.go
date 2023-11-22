@@ -3,26 +3,41 @@ package bazel
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
 func Parse(value string) (*BazelTarget, error) {
-	tokens := strings.Split(value, ":")
-	if len(tokens) != 2 {
-		return nil, fmt.Errorf("invalid format: %s", value)
+	var pkg, target, file string
+
+	// is this a real file?
+	if _, err := os.Stat(value); err == nil {
+		d, f := filepath.Split(value)
+		pkg = filepath.Clean(d)
+		file = f
+	} else {
+		tokens := strings.Split(value, ":")
+		if len(tokens) != 2 {
+			return nil, fmt.Errorf("invalid format: %s", value)
+		}
+
+		if strings.HasSuffix(tokens[1], ".go") {
+			file = tokens[1]
+		} else {
+			target = tokens[1]
+		}
 	}
-	if strings.HasSuffix(tokens[1], ".go") {
-		return &BazelTarget{
-			Package: tokens[0],
-			Target:  "",
-			File:    tokens[1],
-		}, nil
+
+	if !strings.HasPrefix(pkg, "//") {
+		pkg = "//" + pkg
 	}
+
 	return &BazelTarget{
-		Package: tokens[0],
-		Target:  tokens[1],
-		File:    "",
+		Package: pkg,
+		Target:  target,
+		File:    file,
 	}, nil
 }
 

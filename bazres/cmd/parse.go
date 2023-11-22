@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"slices"
 	"strings"
 
@@ -93,32 +92,19 @@ func collate(testTargets []*bazel.BazelTarget, requestedTargets []*bazel.BazelTa
 }
 
 func processLines(args ...string) ([]*bazel.BazelTarget, error) {
-	targets := mapset.NewSet[*bazel.BazelTarget]() // where T is some concrete comparable type.
+	targets := mapset.NewSet[*bazel.BazelTarget]()
 	for _, arg := range args {
 		if arg == "" {
 			continue
 		}
 
-		var bt *bazel.BazelTarget
-		var bazelFile string
-
-		// is this a real file?
-		if _, err := os.Stat(arg); err == nil {
-			d, f := filepath.Split(arg)
-			bt = &bazel.BazelTarget{
-				Package: filepath.Clean(d),
-				Target:  "",
-				File:    f,
-			}
-		} else {
-			bt, err = bazel.Parse(arg)
-			if err != nil {
-				wood.Debugf("failed to parse line: %s => %s", arg, err)
-				continue
-			}
+		bt, err := bazel.Parse(arg)
+		if err != nil {
+			wood.Debugf("failed to parse line: %s => %s", arg, err)
+			continue
 		}
 
-		bazelFile = getBazelFile(bt.Package)
+		bazelFile := getBazelFile(bt.Package)
 		if bazelFile == "" {
 			wood.Debugf("no bazel file found for: %s", bt.Package)
 			continue
