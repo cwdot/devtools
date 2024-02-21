@@ -1,0 +1,73 @@
+lights:
+  bedroom: "light.bedroom_lamp"
+  bloom: "light.hue_bloom_1"
+  desklight: "light.lightstrip"
+  elgato: "light.elgato_dw52j1a00646"
+
+scenes:
+  success:
+    - light: bloom
+      color: green
+      flash: "long"
+      duration: 5s
+      brightness: 30
+    - light: bedroom
+      color: green
+      flash: "short"
+      duration: 5s
+      brightness: 5
+
+  failure:
+    - light: bloom
+      color: red
+      flash: "long"
+      duration: 5s
+      brightness: 30
+    - light: bedroom
+      color: red
+      flash: "short"
+      duration: 5s
+      brightness: 5
+
+  reset:
+    - light: bloom
+      state: off
+    - light: bedroom
+      state: off
+    - light: elgato
+      state: off
+    - light: desklight
+      state: off
+
+  danger:
+    - light: bloom
+      color: yellow
+      flash: "long"
+      duration: 10s
+      brightness: 100
+    - light: bedroom
+      color: red
+      flash: "long"
+      duration: 10s
+      brightness: 100
+
+  exercise:
+    - light: bloom
+      color: blue
+      flash: "long"
+      duration: 5s
+      brightness: 50
+    - light: bedroom
+      color: blue
+      flash: "long"
+      duration: 5s
+      brightness: 50
+
+  ring-on:
+    - light: elgato
+      color: white
+      brightness: 50
+
+  ring-off:
+    - light: elgato
+      state: off

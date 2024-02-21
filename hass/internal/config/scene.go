@@ -1,4 +1,4 @@
-package hass
+package config
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/cwdot/go-stdlib/wood"
 	"github.com/cwdot/stdlib-go/wood"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"

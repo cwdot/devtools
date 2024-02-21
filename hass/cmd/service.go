@@ -20,9 +20,8 @@ func init() {
 	serviceCmd.Flags().String("service", "", "Action to perform like press, turn_on, or turn_off")
 	serviceCmd.Flags().String("entity", "", "Home assistant entity id")
 	serviceCmd.Flags().String("message", "", "Home assistant message")
-	serviceCmd.Flags().StringSlice("k ddd", []string{}, "Custom key/value pairs; separated by a space")
+	serviceCmd.Flags().StringSlice("k", []string{}, "Custom key/value pairs; separated by a space")
 
-	//serviceCmd.Flags().StringArray()
 	noderedCmd.Flags().String("alias", "working", "Nodered alias [sleeping, working]")
 }
 

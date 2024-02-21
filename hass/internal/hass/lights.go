@@ -38,6 +38,7 @@ func TurnOff(secs int) func(*LightOnOpts) {
 		s.TurnOff = time.Second * time.Duration(secs)
 	}
 }
+
 func Brightness(b int) func(*LightOnOpts) {
 	return func(s *LightOnOpts) {
 		s.Brightness = b
