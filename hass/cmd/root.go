@@ -36,12 +36,6 @@ func init() {
 }
 
 func Execute() {
-	disabled := os.Getenv("HASS_DISABLED")
-	if disabled != "" {
-		wood.Infof("HASS_DISABLED env var set; exiting early")
-		return
-	}
-
 	var err error
 	client, err = hass.New(endpoint)
 	if err != nil {

@@ -21,7 +21,15 @@ const (
 	domain2 = "http://192.168.1.101:8123"
 )
 
+var timeout = 3 * time.Second
+
 func New(overrideEndpoint string) (*Client, error) {
+	disabled := os.Getenv("HASS_DISABLED")
+	if disabled != "" {
+		wood.Infof("HASS_DISABLED env var set; exiting early")
+		return nil, errors.New("hass disabled")
+	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, errors.Wrap(err, "error finding home dir")
@@ -30,7 +38,7 @@ func New(overrideEndpoint string) (*Client, error) {
 	configLocation := filepath.Join(home, ".credentials.env")
 	env, err := godotenv.Read(configLocation)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "cannot find %s", configLocation)
 	}
 
 	token, ok := env["HASS_TOKEN"]
@@ -133,7 +141,7 @@ func (c *Client) post(endpoint string, arguments map[string]any) error {
 	wood.Tracef("Invoked %s with: %s", endpoint, string(payload))
 
 	client := http.Client{
-		Timeout: 30 * time.Second,
+		Timeout: timeout,
 	}
 
 	invoke := func(domain string) error {
