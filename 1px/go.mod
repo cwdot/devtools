@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.1
 
 require (
-	github.com/cwdot/go-stdlib v0.1.5
+	github.com/cwdot/stdlib-go v0.2.7
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.7.0
 	gopkg.in/yaml.v3 v3.0.1

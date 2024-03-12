@@ -12,7 +12,7 @@ import (
 	"gitter/internal/config"
 	"gitter/internal/util"
 
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/wood"
 )
 
 type GitBranchMetadata struct {

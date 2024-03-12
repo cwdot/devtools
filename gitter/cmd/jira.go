@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/cwdot/go-stdlib/color"
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/color"
+	"github.com/cwdot/stdlib-go/wood"
 	tw "github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 

@@ -6,7 +6,7 @@ toolchain go1.21.1
 
 require (
 	github.com/andygrunwald/go-jira v1.16.0
-	github.com/cwdot/go-stdlib v0.1.5
+	github.com/cwdot/stdlib-go v0.2.7
 	github.com/deckarep/golang-set/v2 v2.3.1
 	github.com/go-git/go-billy/v5 v5.5.0
 	github.com/go-git/go-git/v5 v5.11.0

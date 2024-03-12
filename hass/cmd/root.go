@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/wood"
 	"github.com/spf13/cobra"
 
 	"hass/internal/hass"

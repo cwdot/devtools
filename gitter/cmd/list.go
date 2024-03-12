@@ -10,7 +10,7 @@ import (
 	"gitter/internal/config"
 	"gitter/internal/list"
 
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/wood"
 )
 
 var allBranches bool

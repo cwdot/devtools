@@ -7,7 +7,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/pkg/errors"
 
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/wood"
 )
 
 func OpenDefault(layoutName string, showArchived bool) (*ActiveRepo, *git.Repository, []Column, error) {

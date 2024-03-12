@@ -1,6 +1,6 @@
 package datatable
 
-import "github.com/cwdot/go-stdlib/color"
+import "github.com/cwdot/stdlib-go/color"
 
 func NewMarker() *Marker {
 	lut := make(map[string]color.Color)

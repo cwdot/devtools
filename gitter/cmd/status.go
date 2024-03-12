@@ -6,8 +6,8 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/color"
 	"github.com/spf13/cobra"
 
-	"github.com/cwdot/go-stdlib/proc"
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/proc"
+	"github.com/cwdot/stdlib-go/wood"
 )
 
 func init() {

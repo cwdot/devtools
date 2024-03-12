@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/andygrunwald/go-jira"
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/wood"
 	"github.com/deckarep/golang-set/v2"
 	"github.com/pkg/errors"
 

@@ -11,7 +11,7 @@ import (
 	"1px/internal/opbridge"
 	"github.com/spf13/cobra"
 
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/wood"
 )
 
 var machine string

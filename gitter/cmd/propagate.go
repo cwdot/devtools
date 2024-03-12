@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"gitter/internal/propagate"
 
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/wood"
 )
 
 var propagateProject string

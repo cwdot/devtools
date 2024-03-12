@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cwdot/go-stdlib/timediff"
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/timediff"
+	"github.com/cwdot/stdlib-go/wood"
 	"github.com/go-git/go-git/v5"
 	tw "github.com/olekukonko/tablewriter"
 

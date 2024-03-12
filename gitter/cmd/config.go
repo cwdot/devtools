@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/cwdot/go-stdlib/color"
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/color"
+	"github.com/cwdot/stdlib-go/wood"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 

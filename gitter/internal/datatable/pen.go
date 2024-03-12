@@ -1,6 +1,6 @@
 package datatable
 
-import "github.com/cwdot/go-stdlib/color"
+import "github.com/cwdot/stdlib-go/color"
 
 func NewPen(trueC color.Color, falseC color.Color) *Pen {
 	return &Pen{

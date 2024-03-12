@@ -6,8 +6,8 @@ import (
 	"github.com/pkg/errors"
 	"gitter/internal/config"
 
-	"github.com/cwdot/go-stdlib/proc"
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/proc"
+	"github.com/cwdot/stdlib-go/wood"
 )
 
 func Propagate(activeRepo *config.ActiveRepo, project string, dryRun bool) error {

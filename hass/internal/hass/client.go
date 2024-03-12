@@ -10,10 +10,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/cwdot/stdlib-go/wood"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
-
-	"github.com/cwdot/go-stdlib/wood"
 )
 
 const (

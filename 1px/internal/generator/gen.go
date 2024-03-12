@@ -8,7 +8,7 @@ import (
 	"1px/internal/opbridge"
 	"github.com/pkg/errors"
 
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/wood"
 )
 
 func Write(entries []Entry, output string) error {

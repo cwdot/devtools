@@ -5,7 +5,7 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/cwdot/go-stdlib/wood"
+	"github.com/cwdot/stdlib-go/wood"
 	"github.com/go-git/go-git/v5"
 	"github.com/pkg/errors"
 
