@@ -1,189 +1,141 @@
 package config
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
-	"github.com/cwdot/go-stdlib/wood"
 	"github.com/cwdot/stdlib-go/wood"
-	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
+
+	"hass/internal/hass"
 )
 
-const maxDomains = 5
-
-var timeout = 3 * time.Second
-
-func New(overrideEndpoint string) (*Client, error) {
-	disabled := os.Getenv("HASS_DISABLED")
-	if disabled != "" {
-		wood.Infof("HASS_DISABLED env var set; exiting early")
-		return nil, errors.New("hass disabled")
-	}
-
+func NewSceneManager() (*ConfigManager, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, errors.Wrap(err, "error finding home dir")
 	}
 
 	// aka ~/.config/hass/credentials.env
-	credentialsPath := filepath.Join(home, ".config", "hass", "credentials.env")
-	env, err := godotenv.Read(credentialsPath)
+	scenesPath := filepath.Join(home, ".config", "hass", "scenes.yaml")
+	f, err := os.Open(scenesPath)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot find %s", credentialsPath)
+		return nil, err
 	}
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 
-	token, ok := env["HASS_TOKEN"]
-	if !ok {
-		return nil, errors.New("failed to find hass token")
-	}
-
-	domains := make([]string, 0, maxDomains)
-	for i := 0; i < maxDomains; i++ {
-		value, ok := env[fmt.Sprintf("DOMAIN%d", i)]
-		if ok {
-			domains = append(domains, value)
-		}
-	}
-
-	return &Client{domains: domains, token: token, overrideEndpoint: overrideEndpoint}, nil
-}
-
-type Client struct {
-	domains          []string
-	token            string
-	overrideEndpoint string
-}
-
-func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
-	opt := &LightOnOpts{}
-	for _, o := range opts {
-		o(opt)
-	}
-
-	arguments := map[string]any{
-		"entity_id": entityId,
-	}
-
-	if opt.Color != nil {
-		k, v := opt.Color.Values()
-		arguments[k] = v
-
-		// Need to make a call to set the commit the option
-		wood.Debugf("Switch options: %s", entityId)
-		err := c.Service("light", "turn_on", arguments)
-		if err != nil {
-			return errors.Wrapf(err, "failed to turn on light: %v", entityId)
-		}
-	}
-
-	if opt.Brightness != 0 {
-		arguments["brightness"] = opt.Brightness
-	}
-
-	if opt.Flash != "" {
-		// Needs to the part of the last call to self turn off
-		arguments["flash"] = opt.Flash
-	}
-
-	payload, _ := json.Marshal(arguments)
-	wood.Infof("Turning on light: %s == %v", entityId, string(payload))
-
-	err := c.Service("light", "turn_on", arguments)
+	b, err := io.ReadAll(f)
 	if err != nil {
-		return errors.Wrapf(err, "failed to turn on light: %v", entityId)
+		return nil, err
 	}
 
-	if opt.TurnOff != 0 {
-		return c.Deactivate(entityId, opt.TurnOff)
-	}
-
-	return nil
-}
-
-func (c *Client) LightOff(entityId string) error {
-	err := c.ServiceSimple("light", "turn_off", entityId)
+	var config Config
+	err = yaml.Unmarshal(b, &config)
 	if err != nil {
-		return errors.Wrapf(err, "failed to turn off light: %v", entityId)
+		return nil, err
 	}
-	return nil
+
+	return &ConfigManager{config}, nil
 }
 
-func (c *Client) Deactivate(entityId string, duration time.Duration) error {
-	time.Sleep(duration)
-	err := c.LightOff(entityId)
-	if err != nil {
-		return errors.Wrapf(err, "failed to turn off light for pseudo-transition: %v", entityId)
-	}
-	return nil
+type ConfigManager struct {
+	Config Config
 }
 
-func (c *Client) Service(domain string, service string, arguments map[string]any) error {
-	err := c.post(fmt.Sprintf("api/services/%s/%s", domain, service), arguments)
-	if err != nil {
-		return errors.Wrapf(err, "failed to call service %s.%s with %v", domain, service, arguments)
-	}
-	return nil
+func (c *ConfigManager) Light(name string) string {
+	return c.Config.Lights[name]
 }
 
-func (c *Client) ServiceSimple(domain string, service string, entityId string) error {
-	arguments := map[string]any{
-		"entity_id": entityId,
+func (c *ConfigManager) Scene(name string) (*ConfigManagerScene, bool) {
+	if s, ok := c.Config.Scenes[name]; ok {
+		return &ConfigManagerScene{Entities: s, lights: c.Config.Lights}, true
 	}
-
-	return c.Service(domain, service, arguments)
+	return nil, false
 }
 
-func (c *Client) post(endpoint string, arguments map[string]any) error {
-	postBody, _ := json.Marshal(arguments)
-	requestBody := bytes.NewBuffer(postBody)
-
-	payload, _ := json.Marshal(arguments)
-	wood.Tracef("Invoked %s with: %s", endpoint, string(payload))
-
-	client := http.Client{
-		Timeout: timeout,
+func (c *ConfigManager) ListLights() []string {
+	keys := make([]string, 0, 10)
+	for k, _ := range c.Config.Lights {
+		keys = append(keys, k)
 	}
+	return keys
+}
 
-	invoke := func(domain string) error {
-		url := fmt.Sprintf("%s/%s", domain, endpoint)
-		req, err := http.NewRequest(http.MethodPost, url, requestBody)
+func (c *ConfigManager) ListScenes() []string {
+	keys := make([]string, 0, 10)
+	for k, _ := range c.Config.Scenes {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func (c *ConfigManager) GetLightId(alias string) string {
+	if fullId, ok := c.Config.Lights[alias]; ok {
+		return fullId
+	}
+	return alias
+}
+
+type ConfigManagerScene struct {
+	lights   map[string]string
+	Entities []SceneEntity
+}
+
+func (c *ConfigManagerScene) Execute(client *hass.Client) error {
+	for _, entity := range c.Entities {
+		opts, err := createOpts(entity)
 		if err != nil {
 			return err
 		}
 
-		wood.Debugf("Invoked POST %s", url)
-
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", "Bearer "+c.token)
-
-		res, err := client.Do(req)
-		if err != nil {
-			return errors.Wrap(err, "failed to post api")
+		id := entity.Light
+		if fullId, ok := c.lights[entity.Light]; ok {
+			id = fullId
 		}
 
-		_, err = io.ReadAll(res.Body)
-		if err != nil {
-			return errors.Wrap(err, "failed to read body")
-		}
-		return nil
-	}
-
-	if c.overrideEndpoint != "" {
-		return invoke(c.overrideEndpoint)
-	}
-
-	var err error
-	for _, domain := range c.domains {
-		if err = invoke(domain); err == nil {
-			break
+		if err := client.Execute(id, opts...); err != nil {
+			return err
 		}
 	}
-	return err
+	return nil
+}
+
+func createOpts(entity SceneEntity) ([]func(opts *hass.LightOnOpts), error) {
+	opts := make([]func(opts *hass.LightOnOpts), 0, 5)
+
+	switch entity.Color {
+	case "red":
+		opts = append(opts, hass.Red())
+	case "green":
+		opts = append(opts, hass.Green())
+	case "blue":
+		opts = append(opts, hass.Blue())
+	case "white":
+		opts = append(opts, hass.White())
+	case "yellow":
+		opts = append(opts, hass.Yellow())
+	case "":
+	default:
+		return nil, errors.Errorf("unknown color: %s", entity.Color)
+	}
+
+	if entity.Brightness >= 0 {
+		opts = append(opts, hass.Brightness(entity.Brightness))
+	}
+
+	switch entity.Flash {
+	case "long":
+		opts = append(opts, hass.LongFlash())
+	case "short":
+		opts = append(opts, hass.ShortFlash())
+	case "":
+	default:
+		wood.Debugf("unknown flash: %s", entity.Flash)
+	}
+
+	return opts, nil
 }

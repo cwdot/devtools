@@ -69,6 +69,9 @@ func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
 	arguments := map[string]any{
 		"entity_id": entityId,
 	}
+	if opt.Brightness >= 0 {
+		arguments["brightness"] = opt.Brightness
+	}
 
 	if opt.Color != nil {
 		k, v := opt.Color.Values()
@@ -80,10 +83,6 @@ func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
 		if err != nil {
 			return errors.Wrapf(err, "failed to turn on light: %v", entityId)
 		}
-	}
-
-	if opt.Brightness != 0 {
-		arguments["brightness"] = opt.Brightness
 	}
 
 	if opt.Flash != "" {
@@ -121,6 +120,10 @@ func (c *Client) Deactivate(entityId string, duration time.Duration) error {
 		return errors.Wrapf(err, "failed to turn off light for pseudo-transition: %v", entityId)
 	}
 	return nil
+}
+
+func (c *Client) Execute(entityId string, opts ...func(*LightOnOpts)) error {
+	return c.LightOn(entityId, opts...)
 }
 
 func (c *Client) Service(domain string, service string, arguments map[string]any) error {
@@ -167,9 +170,12 @@ func (c *Client) post(endpoint string, arguments map[string]any) error {
 			return errors.Wrap(err, "failed to post api")
 		}
 
-		_, err = io.ReadAll(res.Body)
+		text, err := io.ReadAll(res.Body)
 		if err != nil {
 			return errors.Wrap(err, "failed to read body")
+		}
+		if res.StatusCode != 200 {
+			return errors.Errorf("unknown code: %d => %s", res.StatusCode, string(text))
 		}
 		return nil
 	}

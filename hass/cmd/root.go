@@ -18,7 +18,7 @@ var rootCmd = &cobra.Command{
 	Short: "Hass",
 	Long:  `Home assistant tool`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		_ = cmd.Help()
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if verbose {

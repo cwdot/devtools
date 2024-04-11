@@ -1,76 +1,47 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-)
+	"fmt"
+	"log"
 
-var brightness int
+	"github.com/spf13/cobra"
+
+	"hass/internal/config"
+	"hass/internal/hass"
+)
 
 func init() {
 	rootCmd.AddCommand(sceneCmd)
-	rootCmd.Flags().StringP("scene", "s", "", "Light brightness")
-
-	rootCmd.PersistentFlags().IntVarP(&brightness, "brightness", "b", lowBrightness, "Light brightness")
+	sceneCmd.Flags().StringP("name", "n", "", "Scene name")
 }
-
-//
-//var sceneSuccessCmd = &cobra.Command{
-//	Use:   "success",
-//	Short: "Build success",
-//	Long:  "Activate bloom and bedroom lights with green",
-//	Run: func(cmd *cobra.Command, args []string) {
-//		must(client.LightOn(bloom, hass.Green(), hass.LongFlash(), hass.Brightness(brightness)))
-//		must(client.LightOn(bedroom, hass.Green(), hass.ShortFlash(), hass.Brightness(lowBrightness)))
-//	},
-//}
-//
-//var sceneFailureCmd = &cobra.Command{
-//	Use:   "failure",
-//	Short: "Build failure",
-//	Long:  "Activate bloom and bedroom lights with red",
-//	Run: func(cmd *cobra.Command, args []string) {
-//		must(client.LightOn(bloom, hass.Red(), hass.LongFlash(), hass.Brightness(brightness)))
-//		must(client.LightOn(bedroom, hass.Red(), hass.ShortFlash(), hass.Brightness(lowBrightness)))
-//	},
-//}
-//
-//var sceneResetCmd = &cobra.Command{
-//	Use:   "reset",
-//	Short: "Turn off alert light",
-//	Long:  "Turn off bloom and bedroom lights",
-//	Run: func(cmd *cobra.Command, args []string) {
-//		must(client.LightOff(bloom))
-//		must(client.LightOff(bedroom))
-//	},
-//}
-//
-//var sceneDangerCmd = &cobra.Command{
-//	Use:   "danger",
-//	Short: "Turn on danger scene",
-//	Long:  "Activate bloom and bedroom lights with red",
-//	Run: func(cmd *cobra.Command, args []string) {
-//		must(client.LightOn(bloom, hass.Yellow(), hass.LongFlash(), hass.Brightness(100)))
-//		must(client.LightOn(bedroom, hass.Yellow(), hass.LongFlash(), hass.Brightness(100)))
-//	},
-//}
-//
-//var sceneExerciseCmd = &cobra.Command{
-//	Use:   "exercise",
-//	Short: "Run exercise scene",
-//	Long:  "",
-//	Run: func(cmd *cobra.Command, args []string) {
-//		must(client.LightOn(bloom, hass.Blue(), hass.LongFlash(), hass.Brightness(brightness)))
-//		must(client.LightOn(bedroom, hass.Blue(), hass.LongFlash(), hass.Brightness(brightness)))
-//	},
-//}
 
 var sceneCmd = &cobra.Command{
 	Use:   "scene",
 	Short: "Various light arrangements",
 	Long:  "Activate home lights based on different scenarios",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client, err := hass.New(endpoint)
+		if err != nil {
+			log.Fatalf("Failed to create HASS API client: %v", err)
+		}
 
-		scene := must(cmd.Flags().GetString("scene"))
+		sm, err := config.NewSceneManager()
+		if err != nil {
+			return err
+		}
 
+		scene := must(cmd.Flags().GetString("name"))
+		if scene == "" {
+			entities := sm.ListScenes()
+			for _, entity := range entities {
+				fmt.Println(entity)
+			}
+			return nil
+		}
+
+		if cms, ok := sm.Scene(scene); ok {
+			return cms.Execute(client)
+		}
+		return nil
 	},
 }

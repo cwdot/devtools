@@ -1,14 +1,11 @@
 package config
 
 type Config struct {
-	Lights  map[string]string  `yaml:"lights"`
-	Success map[string][]Scene `yaml:"scenes"`
+	Lights map[string]string        `yaml:"lights"`
+	Scenes map[string][]SceneEntity `yaml:"scenes"`
 }
 
-type Scenes struct {
-}
-
-type Scene struct {
+type SceneEntity struct {
 	Light      string `yaml:"light"`
 	State      string `yaml:"state"`
 	Color      string `yaml:"color"`

@@ -6,14 +6,6 @@ import (
 	"hass/internal/hass/color"
 )
 
-//type Flash string
-//
-//const (
-//	LongFlashOpt  Flash = "long"
-//	ShortFlashOpt Flash = "short"
-//	NoFlash    Flash = ""
-//)
-
 type LightOnOpts struct {
 	Color      *color.Color
 	Flash      string
