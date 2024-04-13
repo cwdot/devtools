@@ -1,8 +1,9 @@
 package config
 
 type Config struct {
-	Lights map[string]string  `yaml:"lights"`
-	Scenes map[string][]Light `yaml:"scenes"`
+	Lights map[string]string        `yaml:"lights"`
+	Scenes map[string][]Light       `yaml:"scenes"`
+	Speak  map[string]SpeakerTarget `yaml:"speak"`
 }
 
 type Entity struct {
@@ -16,4 +17,8 @@ type Light struct {
 	Flash      string `yaml:"flash"`
 	Duration   string `yaml:"duration"`
 	Brightness int    `yaml:"brightness"`
+}
+
+type SpeakerTarget struct {
+	Players []string `yaml:"players"`
 }

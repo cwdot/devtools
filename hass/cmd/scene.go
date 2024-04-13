@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/cwdot/stdlib-go/wood"
 	"github.com/spf13/cobra"
 
 	"hass/internal/config"
@@ -22,7 +22,7 @@ var sceneCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client, err := hass.New(endpoint)
 		if err != nil {
-			log.Fatalf("Failed to create HASS API client: %v", err)
+			wood.Fatalf("Failed to create HASS API client: %v", err)
 		}
 
 		cm, err := config.NewConfigManager()
@@ -34,7 +34,7 @@ var sceneCmd = &cobra.Command{
 
 		scene := must(cmd.Flags().GetString("name"))
 		if scene == "" {
-			entities := sm.ListScenes()
+			entities := sm.List()
 			for _, entity := range entities {
 				fmt.Println(entity)
 			}

@@ -90,10 +90,13 @@ func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
 		arguments["flash"] = opt.Flash
 	}
 
-	payload, _ := json.Marshal(arguments)
+	payload, err := json.Marshal(arguments)
+	if err != nil {
+		return errors.Wrapf(err, "marshal arguments: %v", arguments)
+	}
 	wood.Infof("Turning on light: %s == %v", entityId, string(payload))
 
-	err := c.Service("light", "turn_on", arguments)
+	err = c.Service("light", "turn_on", arguments)
 	if err != nil {
 		return errors.Wrapf(err, "failed to turn on light: %v", entityId)
 	}

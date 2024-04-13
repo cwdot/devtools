@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/cwdot/stdlib-go/wood"
@@ -39,7 +38,7 @@ func Execute() {
 	var err error
 	client, err = hass.New(endpoint)
 	if err != nil {
-		log.Fatalf("Failed to create HASS API client: %v", err)
+		wood.Fatalf("Failed to create HASS API client: %v", err)
 	}
 
 	if err := rootCmd.Execute(); err != nil {

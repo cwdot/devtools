@@ -11,7 +11,7 @@ type SceneManager struct {
 	scenes map[string][]Light
 }
 
-func (c *SceneManager) ListScenes() []string {
+func (c *SceneManager) List() []string {
 	keys := make([]string, 0, len(c.scenes))
 	for k, _ := range c.scenes {
 		keys = append(keys, k)

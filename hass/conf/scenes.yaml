@@ -1,6 +1,6 @@
 lights:
   bedroom: "light.bedroom_lamp"
-  bloom: "light.hue_bloom_1"
+  bloom: "light.office_bloom"
   desklight: "light.lightstrip"
   elgato: "light.elgato_dw52j1a00646"
 
@@ -39,30 +39,6 @@ scenes:
     - light: desklight
       state: off
 
-  danger:
-    - light: bloom
-      color: yellow
-      flash: "long"
-      duration: 10s
-      brightness: 100
-    - light: bedroom
-      color: red
-      flash: "long"
-      duration: 10s
-      brightness: 100
-
-  exercise:
-    - light: bloom
-      color: blue
-      flash: "long"
-      duration: 5s
-      brightness: 50
-    - light: bedroom
-      color: blue
-      flash: "long"
-      duration: 5s
-      brightness: 50
-
   ring-on:
     - light: elgato
       color: white
@@ -71,3 +47,8 @@ scenes:
   ring-off:
     - light: elgato
       state: off
+
+speak:
+  kitchen:
+    players:
+      - media_player.kitchen_speaker

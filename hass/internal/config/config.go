@@ -53,3 +53,7 @@ func (c *ConfigManager) Lights() *LightManager {
 		aliases: c.config.Lights,
 	}
 }
+
+func (c *ConfigManager) Speaker() *SpeakManager {
+	return &SpeakManager{c.config.Speak}
+}
