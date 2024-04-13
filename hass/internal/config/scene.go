@@ -52,7 +52,7 @@ func (c *ConfigManager) Light(name string) string {
 
 func (c *ConfigManager) Scene(name string) (*ConfigManagerScene, bool) {
 	if s, ok := c.Config.Scenes[name]; ok {
-		return &ConfigManagerScene{Entities: s, lights: c.Config.Lights}, true
+		return &ConfigManagerScene{Scenes: s, lights: c.Config.Lights}, true
 	}
 	return nil, false
 }
@@ -81,12 +81,12 @@ func (c *ConfigManager) GetLightId(alias string) string {
 }
 
 type ConfigManagerScene struct {
-	lights   map[string]string
-	Entities []SceneEntity
+	lights map[string]string
+	Scenes []Light
 }
 
 func (c *ConfigManagerScene) Execute(client *hass.Client) error {
-	for _, entity := range c.Entities {
+	for _, entity := range c.Scenes {
 		opts, err := createOpts(entity)
 		if err != nil {
 			return err
@@ -104,7 +104,7 @@ func (c *ConfigManagerScene) Execute(client *hass.Client) error {
 	return nil
 }
 
-func createOpts(entity SceneEntity) ([]func(opts *hass.LightOnOpts), error) {
+func createOpts(entity Light) ([]func(opts *hass.LightOnOpts), error) {
 	opts := make([]func(opts *hass.LightOnOpts), 0, 5)
 
 	switch entity.Color {
