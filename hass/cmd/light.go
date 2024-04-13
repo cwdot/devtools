@@ -31,17 +31,19 @@ var lightOffCmd = &cobra.Command{
 			wood.Fatalf("Failed to create HASS API client: %v", err)
 		}
 
-		sm, err := config.NewSceneManager()
+		cm, err := config.NewConfigManager()
 		if err != nil {
 			return err
 		}
 
+		lm := cm.Lights()
+
 		name := must(cmd.Flags().GetString("name"))
 		if name == "" {
 			// turn off all lights
-			lights := sm.ListLights()
+			lights := lm.List()
 			for _, light := range lights {
-				lightId := sm.GetLightId(light)
+				lightId := lm.GetLightId(light)
 				if err := client.LightOff(lightId); err != nil {
 					wood.Warnf("Failed to turn off light: %s", lightId)
 				}
@@ -49,7 +51,7 @@ var lightOffCmd = &cobra.Command{
 			return nil
 		}
 
-		entityId := sm.Light(name)
+		entityId := lm.GetLightId(name)
 		return client.LightOff(entityId)
 	},
 }

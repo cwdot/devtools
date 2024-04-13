@@ -25,10 +25,12 @@ var sceneCmd = &cobra.Command{
 			log.Fatalf("Failed to create HASS API client: %v", err)
 		}
 
-		sm, err := config.NewSceneManager()
+		cm, err := config.NewConfigManager()
 		if err != nil {
 			return err
 		}
+
+		sm := cm.Scenes()
 
 		scene := must(cmd.Flags().GetString("name"))
 		if scene == "" {
@@ -39,8 +41,8 @@ var sceneCmd = &cobra.Command{
 			return nil
 		}
 
-		if cms, ok := sm.Scene(scene); ok {
-			return cms.Execute(client)
+		if ok := sm.HasScene(scene); ok {
+			return sm.Execute(client, scene)
 		}
 		return nil
 	},
