@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cwdot/stdlib-go/wood"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
@@ -15,10 +16,10 @@ func NewConfigManager() (*ConfigManager, error) {
 		return nil, errors.Wrap(err, "error finding home dir")
 	}
 
-	// aka ~/.config/hass/credentials.env
 	scenesPath := filepath.Join(home, ".config", "hass", "scenes.yaml")
 	f, err := os.Open(scenesPath)
 	if err != nil {
+		wood.Infof("Scene config path: %v", scenesPath)
 		return nil, err
 	}
 	defer func(f *os.File) {
@@ -27,12 +28,14 @@ func NewConfigManager() (*ConfigManager, error) {
 
 	b, err := io.ReadAll(f)
 	if err != nil {
+		wood.Infof("Scene config path: %v", scenesPath)
 		return nil, err
 	}
 
 	var config Config
 	err = yaml.Unmarshal(b, &config)
 	if err != nil {
+		wood.Infof("Scene config path: %v", scenesPath)
 		return nil, err
 	}
 

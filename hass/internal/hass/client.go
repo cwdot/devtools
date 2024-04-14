@@ -40,6 +40,7 @@ func New(overrideEndpoint string) (*Client, error) {
 
 	token, ok := env["HASS_TOKEN"]
 	if !ok {
+		wood.Infof("Credentials path: %v", credentialsPath)
 		return nil, errors.New("failed to find hass token")
 	}
 
@@ -49,6 +50,10 @@ func New(overrideEndpoint string) (*Client, error) {
 		if ok {
 			domains = append(domains, value)
 		}
+	}
+	if len(domains) == 0 {
+		wood.Infof("Credentials path: %v", credentialsPath)
+		return nil, errors.New("no domains defined")
 	}
 
 	return &Client{domains: domains, token: token, overrideEndpoint: overrideEndpoint}, nil

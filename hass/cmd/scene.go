@@ -38,7 +38,7 @@ var sceneCmd = &cobra.Command{
 			for _, entity := range entities {
 				fmt.Println(entity)
 			}
-			return nil
+			return cmd.Help()
 		}
 
 		if ok := sm.HasScene(scene); ok {
