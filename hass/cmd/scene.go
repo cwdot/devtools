@@ -12,11 +12,10 @@ import (
 
 func init() {
 	rootCmd.AddCommand(sceneCmd)
-	sceneCmd.Flags().StringP("name", "n", "", "Scene name")
 }
 
 var sceneCmd = &cobra.Command{
-	Use:   "scene",
+	Use:   "scene <name>",
 	Short: "Various light arrangements",
 	Long:  "Activate home lights based on different scenarios",
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -32,17 +31,20 @@ var sceneCmd = &cobra.Command{
 
 		sm := cm.Scenes()
 
-		scene := must(cmd.Flags().GetString("name"))
-		if scene == "" {
+		if ok, err := requireSingleArg(args, func() error {
 			entities := sm.List()
 			for _, entity := range entities {
 				fmt.Println(entity)
 			}
+			fmt.Println()
 			return cmd.Help()
+		}); ok || err != nil {
+			return err
 		}
 
-		if ok := sm.HasScene(scene); ok {
-			return sm.Execute(client, scene)
+		name := args[0]
+		if ok := sm.HasScene(name); ok {
+			return sm.Execute(client, name)
 		}
 		return nil
 	},

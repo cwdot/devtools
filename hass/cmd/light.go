@@ -11,7 +11,6 @@ import (
 func init() {
 	rootCmd.AddCommand(lightCmd)
 	lightCmd.AddCommand(lightOffCmd)
-	lightOffCmd.Flags().StringP("name", "n", "", "Light name; omit for all lights")
 }
 
 var lightCmd = &cobra.Command{
@@ -23,7 +22,7 @@ var lightCmd = &cobra.Command{
 }
 
 var lightOffCmd = &cobra.Command{
-	Use:   "off",
+	Use:   "off <name>",
 	Short: "Turn off light",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client, err := hass.New(endpoint)
@@ -38,8 +37,7 @@ var lightOffCmd = &cobra.Command{
 
 		lm := cm.Lights()
 
-		name := must(cmd.Flags().GetString("name"))
-		if name == "" {
+		if ok, err := requireSingleArg(args, func() error {
 			// turn off all lights
 			lights := lm.List()
 			for _, light := range lights {
@@ -48,9 +46,12 @@ var lightOffCmd = &cobra.Command{
 					wood.Warnf("Failed to turn off light: %s", lightId)
 				}
 			}
-			return nil
+			return cmd.Help()
+		}); ok || err != nil {
+			return err
 		}
 
+		name := args[0]
 		entityId := lm.GetLightId(name)
 		return client.LightOff(entityId)
 	},
