@@ -14,7 +14,7 @@ func init() {
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print the version number of gitter",
+	Short: "Print the version number of hass",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		var commit string
