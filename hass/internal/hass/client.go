@@ -65,10 +65,15 @@ type Client struct {
 	overrideEndpoint string
 }
 
-func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
+func (c *Client) Execute(entityId string, opts ...func(*LightOnOpts)) error {
 	opt := &LightOnOpts{}
 	for _, o := range opts {
 		o(opt)
+	}
+
+	off := true
+	if opt.Brightness > 0 {
+		off = false
 	}
 
 	arguments := map[string]any{
@@ -88,18 +93,25 @@ func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
 		if err != nil {
 			return errors.Wrapf(err, "failed to turn on light: %v", entityId)
 		}
+		off = false
 	}
 
 	if opt.Flash != "" {
 		// Needs to the part of the last call to self turn off
 		arguments["flash"] = opt.Flash
+		off = false
 	}
 
 	payload, err := json.Marshal(arguments)
 	if err != nil {
 		return errors.Wrapf(err, "marshal arguments: %v", arguments)
 	}
-	wood.Infof("Turning on light: %s == %v", entityId, string(payload))
+
+	action := "on"
+	if off {
+		action = "off"
+	}
+	wood.Infof("Turning %s light: %s == %v", action, entityId, string(payload))
 
 	err = c.Service("light", "turn_on", arguments)
 	if err != nil {
@@ -128,10 +140,6 @@ func (c *Client) Deactivate(entityId string, duration time.Duration) error {
 		return errors.Wrapf(err, "failed to turn off light for pseudo-transition: %v", entityId)
 	}
 	return nil
-}
-
-func (c *Client) Execute(entityId string, opts ...func(*LightOnOpts)) error {
-	return c.LightOn(entityId, opts...)
 }
 
 func (c *Client) Service(domain string, service string, arguments map[string]any) error {
