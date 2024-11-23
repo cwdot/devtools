@@ -1,7 +1,7 @@
 package config
 
 import (
-	"io"
+	"embed"
 	"os"
 	"path/filepath"
 
@@ -10,40 +10,68 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+//go:embed base-scenes.yaml
+var e embed.FS
+
 func NewConfigManager() (*ConfigManager, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, errors.Wrap(err, "error finding home dir")
 	}
 
+	b, err := e.ReadFile("base-scenes.yaml")
+	if err != nil {
+		return nil, errors.Wrap(err, "reading embedded")
+	}
+
+	baseConfig, err := readConfig(b)
+	if err != nil {
+		return nil, errors.Wrap(err, "reading embedded")
+	}
+
+	var originalConfig *Config
 	scenesPath := filepath.Join(home, ".config", "hass", "scenes.yaml")
-	f, err := os.Open(scenesPath)
-	if err != nil {
-		wood.Infof("Scene config path: %v", scenesPath)
-		return nil, err
-	}
-	defer func(f *os.File) {
-		_ = f.Close()
-	}(f)
+	if _, err := os.Stat(scenesPath); err == nil {
+		b, err := os.ReadFile(scenesPath)
+		if err != nil {
+			wood.Infof("Scene config path: %v", scenesPath)
+			return nil, err
+		}
 
-	b, err := io.ReadAll(f)
-	if err != nil {
-		wood.Infof("Scene config path: %v", scenesPath)
-		return nil, err
+		originalConfig, err = readConfig(b)
+		if err != nil {
+			return nil, errors.Wrap(err, "reading file")
+		}
 	}
 
-	var config Config
-	err = yaml.Unmarshal(b, &config)
-	if err != nil {
-		wood.Infof("Scene config path: %v", scenesPath)
-		return nil, err
-	}
+	config := mergeConfigs(baseConfig, originalConfig)
 
 	return &ConfigManager{config}, nil
 }
 
+func mergeConfigs(config *Config, originalConfig *Config) *Config {
+	for k, v := range originalConfig.Scenes {
+		config.Scenes[k] = v
+	}
+	for k, v := range originalConfig.Lights {
+		config.Lights[k] = v
+	}
+	for k, v := range originalConfig.Speak {
+		config.Speak[k] = v
+	}
+	return config
+}
+
+func readConfig(contents []byte) (*Config, error) {
+	var config Config
+	if err := yaml.Unmarshal(contents, &config); err != nil {
+		return nil, errors.Wrap(err, "unmarshalling")
+	}
+	return &config, nil
+}
+
 type ConfigManager struct {
-	config Config
+	config *Config
 }
 
 func (c *ConfigManager) Scenes() *SceneManager {
