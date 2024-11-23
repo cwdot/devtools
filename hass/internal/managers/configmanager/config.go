@@ -4,6 +4,7 @@ import (
 	"embed"
 	"hass/internal/config"
 	"hass/internal/managers/lightmanager"
+	"hass/internal/managers/mqttmanager"
 	"hass/internal/managers/scenemanager"
 	"hass/internal/managers/speakmanager"
 	"os"
@@ -31,12 +32,12 @@ func New() (*ConfigManager, error) {
 
 	b, err := e.ReadFile("base-scenes.yaml")
 	if err != nil {
-		return nil, errors.Wrap(err, "reading embedded")
+		return nil, errors.Wrap(err, "reading embedded file")
 	}
 
-	baseConfig, err := readConfig(b)
+	conf, err := readConfig(b)
 	if err != nil {
-		return nil, errors.Wrap(err, "reading embedded")
+		return nil, errors.Wrap(err, "parsing embedded file")
 	}
 
 	var originalConfig *config.Config
@@ -52,11 +53,12 @@ func New() (*ConfigManager, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "reading file")
 		}
+		conf = mergeConfigs(conf, originalConfig)
+
+		wood.Infof("Read supplemental config: %v => %s", scenesPath, originalConfig.Summary())
 	}
 
-	config := mergeConfigs(baseConfig, originalConfig)
-
-	return &ConfigManager{config}, nil
+	return &ConfigManager{conf}, nil
 }
 
 func mergeConfigs(config *config.Config, originalConfig *config.Config) *config.Config {
@@ -104,7 +106,8 @@ type ConfigManager struct {
 
 func (c *ConfigManager) Scenes() *scenemanager.SceneManager {
 	lm := c.Lights()
-	return scenemanager.New(c.config.Scenes, lm)
+	mm := mqttmanager.New()
+	return scenemanager.New(c.config.Scenes, lm, mm)
 }
 
 func (c *ConfigManager) Lights() *lightmanager.LightManager {

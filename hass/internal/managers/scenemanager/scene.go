@@ -1,26 +1,28 @@
 package scenemanager
 
 import (
-	"encoding/json"
 	"github.com/cwdot/stdlib-go/wood"
 	"github.com/pkg/errors"
 	"hass/internal/config"
 	"hass/internal/hassclient"
 	"hass/internal/managers/lightmanager"
+	"hass/internal/managers/mqttmanager"
 	"hass/internal/mqttclient"
 	"sort"
 )
 
-func New(scenes map[string][]config.Entity, lm *lightmanager.LightManager) *SceneManager {
+func New(scenes map[string][]config.Entity, lm *lightmanager.LightManager, mm *mqttmanager.MqttManager) *SceneManager {
 	return &SceneManager{
 		scenes: scenes,
 		lm:     lm,
+		mm:     mm,
 	}
 }
 
 type SceneManager struct {
-	lm     *lightmanager.LightManager
 	scenes map[string][]config.Entity
+	lm     *lightmanager.LightManager
+	mm     *mqttmanager.MqttManager
 }
 
 func (c *SceneManager) List() []string {
@@ -37,7 +39,7 @@ func (c *SceneManager) HasScene(name string) bool {
 	return ok
 }
 
-func (c *SceneManager) Execute(hc *hassclient.Client, mc *mqttclient.Client, entityId string) error {
+func (c *SceneManager) Execute(hc *hassclient.Client, mc *mqttclient.Client, entityId string, arguments map[string]string) error {
 	invocations, ok := c.scenes[entityId]
 	if !ok {
 		return errors.Errorf("not found: %v", entityId)
@@ -50,7 +52,7 @@ func (c *SceneManager) Execute(hc *hassclient.Client, mc *mqttclient.Client, ent
 				return err
 			}
 		case config.MqttEntity:
-			if err := executeMqtt(mc, t); err != nil {
+			if err := c.mm.Execute(mc, t, arguments); err != nil {
 				return err
 			}
 		//case FanEntity:
@@ -62,20 +64,4 @@ func (c *SceneManager) Execute(hc *hassclient.Client, mc *mqttclient.Client, ent
 		}
 	}
 	return nil
-}
-
-func executeMqtt(mc *mqttclient.Client, invocation config.MqttEntity) error {
-	wood.Infof("Invoking MQTT: %s", invocation.Mqtt)
-
-	var payload string
-	switch t := invocation.Payload.(type) {
-	case []any:
-		p, err := json.Marshal(t[0])
-		if err != nil {
-			return errors.Wrap(err, "marshalling payload")
-		}
-		payload = string(p)
-	}
-
-	return mc.Publish(invocation.Mqtt, payload, false)
 }

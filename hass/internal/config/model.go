@@ -1,9 +1,15 @@
 package config
 
+import "fmt"
+
 type Config struct {
 	Lights map[string]string
 	Scenes map[string][]Entity
 	Speak  map[string]SpeakerTarget
+}
+
+func (c *Config) Summary() string {
+	return fmt.Sprintf("Lights: %v, Scenes: %v, Speak: %v", len(c.Lights), len(c.Scenes), len(c.Speak))
 }
 
 type Entity interface {
@@ -21,8 +27,9 @@ type LightEntity struct {
 
 type MqttEntity struct {
 	Entity
-	Mqtt    string `yaml:"mqtt"`
-	Payload any    `yaml:"payload"`
+	Mqtt           string
+	Payload        any
+	ValidArguments map[string][]string
 }
 
 type FanEntity struct {

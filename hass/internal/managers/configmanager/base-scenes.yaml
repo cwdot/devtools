@@ -1,11 +1,36 @@
 scenes:
-  bedroom:
-    - light: bedroom
+  bedroom1:
+    - mqtt: "hass/lights/bedroom1"
+      payload:
+        - action: ${action:toggle}
+      arguments:
+        action:
+          - "toggle"
+          - "off"
+          - "on"
+  family:
+    - mqtt: "hass/lights/family"
+      payload:
+        - action: ${action:toggle}
+      arguments:
+        action:
+          - "toggle"
+          - "off"
+          - "on"
+  office:
+    - mqtt: "hass/lights/office"
+      payload:
+        - action: ${action:toggle}
+      arguments:
+        action:
+          - "toggle"
+          - "off"
+          - "on"
 
   off:
-    - mqtt: "hass/lights/off"
+    - mqtt: "hass/lights"
       payload:
-        - action: reset
+        - action: off
 
   alert-success:
     - mqtt: "hass/lights/alert"
@@ -26,6 +51,6 @@ scenes:
 
 
 speak:
-  kitchen:
+  family:
     players:
-      - media_player.kitchen_speaker
+      - media_player.family_speaker
