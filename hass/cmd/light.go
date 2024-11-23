@@ -5,7 +5,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"hass/internal/config"
-	"hass/internal/hass"
 )
 
 func init() {
@@ -25,7 +24,7 @@ var lightOffCmd = &cobra.Command{
 	Use:   "off <name>",
 	Short: "Turn off light",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client, err := hass.New(endpoint)
+		client, err := newHassClient()
 		if err != nil {
 			wood.Fatalf("Failed to create HASS API client: %v", err)
 		}

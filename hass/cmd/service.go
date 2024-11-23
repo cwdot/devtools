@@ -42,6 +42,10 @@ var serviceCmd = &cobra.Command{
 		arguments := map[string]any{
 			"message": message,
 		}
+		client, err := newHassClient()
+		if err != nil {
+			wood.Fatalf("Failed to create HASS API client: %v", err)
+		}
 		err = client.Service(domain, service, arguments)
 		if err != nil {
 			log.Fatal("errrr")

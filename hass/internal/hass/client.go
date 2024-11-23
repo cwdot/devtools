@@ -6,63 +6,36 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/cwdot/stdlib-go/wood"
-	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 )
 
-const maxDomains = 5
-
 var timeout = 3 * time.Second
 
-func New(overrideEndpoint string) (*Client, error) {
-	disabled := os.Getenv("HASS_DISABLED")
-	if disabled != "" {
-		wood.Infof("HASS_DISABLED env var set; exiting early")
+type Config struct {
+	Disabled         bool
+	Token            string
+	OverrideEndpoint string
+	Domains          []string
+}
+
+func New(config Config) (*Client, error) {
+	if config.Disabled {
+		wood.Infof("HASS disabled; exiting early")
 		return nil, errors.New("hass disabled")
 	}
-
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return nil, errors.Wrap(err, "error finding home dir")
-	}
-
-	// aka ~/.config/hass/credentials.env
-	credentialsPath := filepath.Join(home, ".config", "hass", "credentials.env")
-	env, err := godotenv.Read(credentialsPath)
-	if err != nil {
-		return nil, errors.Wrapf(err, "cannot find %s", credentialsPath)
-	}
-
-	token, ok := env["HASS_TOKEN"]
-	if !ok {
-		wood.Infof("Credentials path: %v", credentialsPath)
-		return nil, errors.New("failed to find hass token")
-	}
-
-	domains := make([]string, 0, maxDomains)
-	for i := 0; i < maxDomains; i++ {
-		value, ok := env[fmt.Sprintf("DOMAIN%d", i)]
-		if ok {
-			domains = append(domains, value)
-		}
-	}
-	if len(domains) == 0 {
-		wood.Infof("Credentials path: %v", credentialsPath)
-		return nil, errors.New("no domains defined")
-	}
-
-	return &Client{domains: domains, token: token, overrideEndpoint: overrideEndpoint}, nil
+	return &Client{
+		config: config,
+	}, nil
 }
 
 type Client struct {
-	domains          []string
-	token            string
-	overrideEndpoint string
+	config Config
+	//domains          []string
+	//token            string
+	//overrideEndpoint string
 }
 
 func (c *Client) Execute(entityId string, opts ...func(*LightOnOpts)) error {
@@ -179,7 +152,7 @@ func (c *Client) post(endpoint string, arguments map[string]any) error {
 		wood.Debugf("Invoked POST %s", url)
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", "Bearer "+c.token)
+		req.Header.Set("Authorization", "Bearer "+c.config.Token)
 
 		res, err := client.Do(req)
 		if err != nil {
@@ -196,12 +169,12 @@ func (c *Client) post(endpoint string, arguments map[string]any) error {
 		return nil
 	}
 
-	if c.overrideEndpoint != "" {
-		return invoke(c.overrideEndpoint)
+	if c.config.OverrideEndpoint != "" {
+		return invoke(c.config.OverrideEndpoint)
 	}
 
 	var err error
-	for _, domain := range c.domains {
+	for _, domain := range c.config.Domains {
 		if err = invoke(domain); err == nil {
 			break
 		}
