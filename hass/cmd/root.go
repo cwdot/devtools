@@ -35,13 +35,21 @@ func init() {
 }
 
 func Execute() {
+	preloadClients()
+
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+func preloadClients() {
 	_, err := clientfactory.NewHassClient(endpoint)
 	if err != nil {
 		wood.Fatalf("Failed to create HASS API client: %v", err)
 	}
 
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	if _, err := clientfactory.NewMqttClient(); err != nil {
+		wood.Fatalf("Failed to create MQTT API client: %v", err)
 	}
 }

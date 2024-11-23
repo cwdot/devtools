@@ -27,10 +27,8 @@ func NewHassClient(endpoint string) (*hassclient.Client, error) {
 		return nil, errors.Wrapf(err, "cannot find %s", credentialsPath)
 	}
 
-	token, ok := env["HASS_TOKEN"]
-	if !ok {
-		wood.Infof("Credentials path: %v", credentialsPath)
-		return nil, errors.New("failed to find hass token")
+	if err := Validate(env, []string{"HASS_TOKEN"}); err != nil {
+		return nil, errors.Wrapf(err, "env validation")
 	}
 
 	domains := make([]string, 0, maxDomains)
@@ -46,7 +44,7 @@ func NewHassClient(endpoint string) (*hassclient.Client, error) {
 
 	client, err := hassclient.New(hassclient.Config{
 		Disabled:         os.Getenv("HASS_DISABLED") == "true",
-		Token:            token,
+		Token:            env["HASS_TOKEN"],
 		OverrideEndpoint: endpoint,
 		Domains:          domains,
 	})
