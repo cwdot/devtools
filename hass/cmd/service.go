@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cwdot/stdlib-go/wood"
+
+	"hass/cmd/clientfactory"
 )
 
 func init() {
@@ -42,7 +44,7 @@ var serviceCmd = &cobra.Command{
 		arguments := map[string]any{
 			"message": message,
 		}
-		client, err := newHassClient()
+		client, err := clientfactory.NewHassClient(endpoint)
 		if err != nil {
 			wood.Fatalf("Failed to create HASS API client: %v", err)
 		}

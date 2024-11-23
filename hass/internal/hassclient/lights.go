@@ -1,9 +1,9 @@
-package hass
+package hassclient
 
 import (
 	"time"
 
-	"hass/internal/hass/color"
+	"hass/internal/hassclient/color"
 )
 
 type LightOnOpts struct {

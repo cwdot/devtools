@@ -1,4 +1,4 @@
-package hass
+package hassclient
 
 import (
 	"bytes"
@@ -33,12 +33,9 @@ func New(config Config) (*Client, error) {
 
 type Client struct {
 	config Config
-	//domains          []string
-	//token            string
-	//overrideEndpoint string
 }
 
-func (c *Client) Execute(entityId string, opts ...func(*LightOnOpts)) error {
+func (c *Client) LightOn(entityId string, opts ...func(*LightOnOpts)) error {
 	opt := &LightOnOpts{}
 	for _, o := range opts {
 		o(opt)

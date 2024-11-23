@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/pkg/errors"
 
-	"hass/internal/hass"
+	"hass/internal/hassclient"
 )
 
 type SceneManager struct {
@@ -24,7 +24,7 @@ func (c *SceneManager) HasScene(name string) bool {
 	return ok
 }
 
-func (c *SceneManager) Execute(client *hass.Client, entityId string) error {
+func (c *SceneManager) Execute(client *hassclient.Client, entityId string) error {
 	lights, ok := c.scenes[entityId]
 	if !ok {
 		return errors.Errorf("not found: %v", entityId)
@@ -41,7 +41,7 @@ func (c *SceneManager) Execute(client *hass.Client, entityId string) error {
 			id = fullId
 		}
 
-		if err := client.Execute(id, opts...); err != nil {
+		if err := client.LightOn(id, opts...); err != nil {
 			return err
 		}
 	}

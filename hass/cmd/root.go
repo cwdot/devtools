@@ -6,6 +6,8 @@ import (
 
 	"github.com/cwdot/stdlib-go/wood"
 	"github.com/spf13/cobra"
+
+	"hass/cmd/clientfactory"
 )
 
 var verbose bool
@@ -24,7 +26,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-// var client *hass.Client
+// var client *hassclient.Client
 var endpoint string
 
 func init() {
@@ -33,7 +35,7 @@ func init() {
 }
 
 func Execute() {
-	_, err := newHassClient()
+	_, err := clientfactory.NewHassClient(endpoint)
 	if err != nil {
 		wood.Fatalf("Failed to create HASS API client: %v", err)
 	}

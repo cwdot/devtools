@@ -1,4 +1,4 @@
-package cmd
+package clientfactory
 
 import (
 	"fmt"
@@ -9,12 +9,12 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 
-	"hass/internal/hass"
+	"hass/internal/hassclient"
 )
 
 const maxDomains = 5
 
-func newHassClient() (*hass.Client, error) {
+func NewHassClient(endpoint string) (*hassclient.Client, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, errors.Wrap(err, "error finding home dir")
@@ -44,7 +44,7 @@ func newHassClient() (*hass.Client, error) {
 		return nil, errors.New("no domains defined")
 	}
 
-	client, err := hass.New(hass.Config{
+	client, err := hassclient.New(hassclient.Config{
 		Disabled:         os.Getenv("HASS_DISABLED") == "true",
 		Token:            token,
 		OverrideEndpoint: endpoint,

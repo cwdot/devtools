@@ -6,6 +6,7 @@ import (
 	"github.com/cwdot/stdlib-go/wood"
 	"github.com/spf13/cobra"
 
+	"hass/cmd/clientfactory"
 	"hass/internal/config"
 )
 
@@ -18,7 +19,7 @@ var sceneCmd = &cobra.Command{
 	Short: "Various light arrangements",
 	Long:  "Activate home lights based on different scenarios",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client, err := newHassClient()
+		client, err := clientfactory.NewHassClient(endpoint)
 		if err != nil {
 			wood.Fatalf("Failed to create HASS API client: %v", err)
 		}

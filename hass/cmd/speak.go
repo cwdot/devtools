@@ -4,6 +4,7 @@ import (
 	"github.com/cwdot/stdlib-go/wood"
 	"github.com/spf13/cobra"
 
+	"hass/cmd/clientfactory"
 	"hass/internal/config"
 )
 
@@ -17,7 +18,7 @@ var speakCmd = &cobra.Command{
 	Use:   "speak",
 	Short: "TTS",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client, err := newHassClient()
+		client, err := clientfactory.NewHassClient(endpoint)
 		if err != nil {
 			wood.Fatalf("Failed to create HASS API client: %v", err)
 		}
