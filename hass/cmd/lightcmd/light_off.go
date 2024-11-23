@@ -3,9 +3,9 @@ package lightcmd
 import (
 	"github.com/cwdot/stdlib-go/wood"
 	"github.com/spf13/cobra"
+	"hass/internal/managers/configmanager"
 
 	"hass/cmd/clientfactory"
-	"hass/internal/config"
 )
 
 func NewLightOffCmd() *cobra.Command {
@@ -20,7 +20,7 @@ func NewLightOffCmd() *cobra.Command {
 				wood.Fatalf("Failed to create HASS API client: %v", err)
 			}
 
-			cm, err := config.NewConfigManager()
+			cm, err := configmanager.New()
 			if err != nil {
 				return err
 			}
@@ -32,7 +32,7 @@ func NewLightOffCmd() *cobra.Command {
 				for _, light := range lights {
 					lightId := lm.GetLightId(light)
 					if err := client.LightOff(lightId); err != nil {
-						wood.Warnf("Failed to turn off light: %s => %v", lightId, err)
+						wood.Warnf("turn off light: %s => %v", lightId, err)
 					}
 				}
 				wood.Infof("Turned off all lights (%d)", len(lights))

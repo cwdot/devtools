@@ -1,10 +1,30 @@
 lights:
-  bedroom: "light.bedroom_lamp"
+  bedroom: "light.bedroom1"
   bloom: "light.office_bloom"
   desklight: "light.lightstrip"
   elgato: "light.elgato_dw52j1a00646"
 
 scenes:
+  bedroom:
+    - light: bedroom
+
+  alert-success:
+    - mqtt: "hass/lights/alert"
+      payload:
+        - action: success
+  alert-failure:
+    - mqtt: "hass/lights/alert"
+      payload:
+        - action: failure
+  alert-warning:
+    - mqtt: "hass/lights/alert"
+      payload:
+        - action: warning
+  alert-reset:
+    - mqtt: "hass/lights/alert"
+      payload:
+        - action: reset
+
   success:
     - light: bloom
       color: green
@@ -47,6 +67,9 @@ scenes:
   ring-off:
     - light: elgato
       state: off
+
+  s2:
+    - mqtt: "hass/lights/alert/state=on"
 
 speak:
   kitchen:

@@ -50,7 +50,7 @@ var serviceCmd = &cobra.Command{
 		}
 		err = client.Service(domain, service, arguments)
 		if err != nil {
-			log.Fatal("errrr")
+			wood.Fatalf("Failed to call service %v %v %v: %v", domain, service, arguments, err)
 		}
 	},
 }

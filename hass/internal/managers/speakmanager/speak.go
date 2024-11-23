@@ -1,17 +1,22 @@
-package config
+package speakmanager
 
 import (
 	"github.com/cwdot/stdlib-go/wood"
+	"hass/internal/config"
 
 	"hass/internal/hassclient"
 )
 
+func New(targets map[string]config.SpeakerTarget) *SpeakManager {
+	return &SpeakManager{targets: targets}
+}
+
 type SpeakManager struct {
-	speakerTargets map[string]SpeakerTarget
+	targets map[string]config.SpeakerTarget
 }
 
 func (c *SpeakManager) Speak(client *hassclient.Client, target string, message string) error {
-	if st, ok := c.speakerTargets[target]; ok {
+	if st, ok := c.targets[target]; ok {
 		entities := st.Players
 		args := map[string]any{
 			"entity_id":              "tts.piper",

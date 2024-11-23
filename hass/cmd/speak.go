@@ -3,9 +3,9 @@ package cmd
 import (
 	"github.com/cwdot/stdlib-go/wood"
 	"github.com/spf13/cobra"
+	"hass/internal/managers/configmanager"
 
 	"hass/cmd/clientfactory"
-	"hass/internal/config"
 )
 
 func init() {
@@ -18,12 +18,12 @@ var speakCmd = &cobra.Command{
 	Use:   "speak",
 	Short: "TTS",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client, err := clientfactory.NewHassClient(endpoint)
+		hc, err := clientfactory.NewHassClient(endpoint)
 		if err != nil {
 			wood.Fatalf("Failed to create HASS API client: %v", err)
 		}
 
-		cm, err := config.NewConfigManager()
+		cm, err := configmanager.New()
 		if err != nil {
 			return err
 		}
@@ -31,6 +31,6 @@ var speakCmd = &cobra.Command{
 		group := must(cmd.Flags().GetString("group"))
 		message := must(cmd.Flags().GetString("message"))
 
-		return cm.Speaker().Speak(client, group, message)
+		return cm.Speaker().Speak(hc, group, message)
 	},
 }

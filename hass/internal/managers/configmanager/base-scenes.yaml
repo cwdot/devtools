@@ -1,0 +1,31 @@
+scenes:
+  bedroom:
+    - light: bedroom
+
+  off:
+    - mqtt: "hass/lights/off"
+      payload:
+        - action: reset
+
+  alert-success:
+    - mqtt: "hass/lights/alert"
+      payload:
+        - action: success
+  alert-failure:
+    - mqtt: "hass/lights/alert"
+      payload:
+        - action: failure
+  alert-warning:
+    - mqtt: "hass/lights/alert"
+      payload:
+        - action: warning
+  alert-reset:
+    - mqtt: "hass/lights/alert"
+      payload:
+        - action: reset
+
+
+speak:
+  kitchen:
+    players:
+      - media_player.kitchen_speaker

@@ -11,6 +11,7 @@ import (
 )
 
 var verbose bool
+var endpoint string
 
 var rootCmd = &cobra.Command{
 	Use:   "hass",
@@ -25,9 +26,6 @@ var rootCmd = &cobra.Command{
 		}
 	},
 }
-
-// var client *hassclient.Client
-var endpoint string
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose logging")
@@ -50,6 +48,6 @@ func preloadClients() {
 	}
 
 	if _, err := clientfactory.NewMqttClient(); err != nil {
-		wood.Fatalf("Failed to create MQTT API client: %v", err)
+		wood.Fatalf("create MQTT API client: %v", err)
 	}
 }

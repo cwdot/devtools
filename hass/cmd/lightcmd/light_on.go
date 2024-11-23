@@ -1,13 +1,11 @@
 package lightcmd
 
 import (
-	"fmt"
-
 	"github.com/cwdot/stdlib-go/wood"
 	"github.com/spf13/cobra"
+	"hass/internal/managers/configmanager"
 
 	"hass/cmd/clientfactory"
-	"hass/internal/config"
 )
 
 func NewLightOnCmd() *cobra.Command {
@@ -22,19 +20,20 @@ func NewLightOnCmd() *cobra.Command {
 				wood.Fatalf("Failed to create HASS API client: %v", err)
 			}
 
-			cm, err := config.NewConfigManager()
+			cm, err := configmanager.New()
 			if err != nil {
 				return err
 			}
-			fmt.Println("light_on.go")
+
 			lm := cm.Lights()
+
 			switch len(args) {
 			case 0: // all lights
 				lights := lm.List()
 				for _, light := range lights {
 					lightId := lm.GetLightId(light)
 					if err := client.LightOn(lightId); err != nil {
-						wood.Warnf("Failed to turn on light: %s => %v", lightId, err)
+						wood.Warnf("turn on light: %s => %v", lightId, err)
 					}
 				}
 				wood.Infof("Turned on all lights (%d)", len(lights))

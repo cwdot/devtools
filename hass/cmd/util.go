@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"log"
-
-	"github.com/pkg/errors"
 )
 
 func must[T any](v T, err error) T {
@@ -14,11 +12,11 @@ func must[T any](v T, err error) T {
 	return v
 }
 
-func requireSingleArg(args []string, noArgs func() error) (bool, error) {
+func requireSingleArg(args []string, wrongArgs func(message string) error) error {
 	if len(args) == 0 {
-		return true, noArgs()
+		return wrongArgs("missing argument")
 	} else if len(args) > 1 {
-		return true, errors.New("too many arguments")
+		return wrongArgs("too many arguments")
 	}
-	return false, nil
+	return nil
 }
